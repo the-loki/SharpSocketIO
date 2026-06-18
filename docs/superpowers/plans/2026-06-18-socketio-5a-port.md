@@ -12,7 +12,7 @@
 
 ---
 
-## Task 5A-1: Project skeleton + core types
+## Task 5A-1: Project skeleton + core types — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.SocketIo/SharpSocketIO.SocketIo.csproj`
@@ -129,7 +129,7 @@ git commit -m "build(socketio): SharpSocketIO.SocketIo project skeleton + core t
 
 ---
 
-## Task 5A-2: `IEngineIoConnection` abstraction + `Client`
+## Task 5A-2: `IEngineIoConnection` abstraction + `Client` — DONE
 
 The `Client` wraps an engine.io connection. We abstract it behind `IEngineIoConnection` so the logic is testable without a live server (5B provides the adapter from `SharpSocketIO.EngineIo.Socket`).
 
@@ -246,7 +246,7 @@ public sealed class Client
 
 ---
 
-## Task 5A-3: `Socket` (per-namespace client)
+## Task 5A-3: `Socket` (per-namespace client) — DONE
 
 **Files:**
 - Create: `src/.../Socket.cs`
@@ -439,7 +439,7 @@ internal static class ArgsExt
 
 ---
 
-## Task 5A-4: `Namespace` + `Server`
+## Task 5A-4: `Namespace` + `Server` — DONE
 
 **Files:**
 - Create: `src/.../Namespace.cs`
@@ -599,7 +599,7 @@ Expected: builds clean (the `ArgsExt`/ack wiring is rough; refine in the test st
 
 ---
 
-## Task 5A-5: Logic-layer tests with a fake engine.io connection
+## Task 5A-5: Logic-layer tests with a fake engine.io connection — DONE
 
 **Files:**
 - Create: `tests/.../Fakes/FakeEngineIoConnection.cs`
@@ -766,7 +766,7 @@ git commit -m "feat(socketio): 5A — Server/Namespace/Socket/Client logic layer
 
 ---
 
-## Task 5A-6: Final 5A verification
+## Task 5A-6: Final 5A verification — DONE
 
 - [ ] **Step 1: Release build + test across all TFMs**
 
