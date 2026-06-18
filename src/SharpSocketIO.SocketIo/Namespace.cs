@@ -93,12 +93,16 @@ public sealed class Namespace : Emitter<UnitEvents>, IAdapterNamespace
         }
     }
 
-    /// <summary>Sends pre-encoded parts (header + binary attachments) to a specific socket.</summary>
-    internal void SendPartsToSocket(string socketId, System.Collections.Generic.IReadOnlyList<object> parts)
+    /// <summary>IAdapterNamespace: send pre-encoded parts (header + binary attachments) to a specific socket.</summary>
+    void IAdapterNamespace.SendParts(string socketId, System.Collections.Generic.IReadOnlyList<object> parts)
     {
         if (Sockets.TryGetValue(socketId, out var socket))
         {
             socket.Client.SendRawParts(parts);
         }
     }
+
+    /// <summary>Sends pre-encoded parts to a specific socket (internal alias).</summary>
+    internal void SendPartsToSocket(string socketId, System.Collections.Generic.IReadOnlyList<object> parts)
+        => ((IAdapterNamespace)this).SendParts(socketId, parts);
 }

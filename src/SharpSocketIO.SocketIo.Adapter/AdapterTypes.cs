@@ -25,4 +25,5 @@ public sealed class BroadcastOptions
 public interface IAdapterNamespace
 {
     void Send(string socketId, string packet);
+    void SendParts(string socketId, IReadOnlyList<object> parts);
 }

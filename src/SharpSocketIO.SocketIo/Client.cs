@@ -24,11 +24,15 @@ public sealed class Client
         _encoder = server.Encoder;
         _decoder = new Decoder();
         _decoder.On("decoded", args => OnDecoded((Packet)args[0]));
-        Conn.Events.On("data", args => OnData(args.Length > 0 ? args[0]?.ToString() ?? "" : ""));
-        Conn.Events.On("close", args => OnClose(args.Length > 0 ? (args[0]?.ToString() ?? DisconnectReasons.ForcedClose) : DisconnectReasons.ForcedClose));
+        Conn.Events.On("data", args =>
+        {
+            if (args.Length == 0) return;
+            // String data = socket.io text packet; byte[] = binary attachment frame
+            if (args[0] is string s) _decoder.Add(s);
+            else if (args[0] is byte[] b) _decoder.Add(b);
+        });
+        Conn.Events.On("close", args => OnClose(args.Length > 0 ? (args[0]?.ToString() ?? DisconnectReasons.TransportClose) : DisconnectReasons.TransportClose));
     }
-
-    private void OnData(string data) => _decoder.Add(data);
 
     private void OnDecoded(Packet packet)
     {
