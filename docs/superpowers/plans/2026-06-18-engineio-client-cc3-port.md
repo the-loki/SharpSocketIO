@@ -12,7 +12,7 @@
 
 ---
 
-## Task CC-3.1: Binary round-trip tests (polling + ws)
+## Task CC-3.1: Binary round-trip tests (polling + ws) — DONE
 
 **Files:**
 - Create: `tests/.../BinaryIntegrationTests.cs`
@@ -194,7 +194,7 @@ git commit -m "test(client): binary round-trip tests (polling + ws + force-base6
 
 ---
 
-## Task CC-3.2: Transport pause/resume + close/error edge cases
+## Task CC-3.2: Transport pause/resume + close/error edge cases — DONE
 
 **Files:**
 - Create: `tests/.../EdgeCaseTests.cs`
@@ -262,7 +262,7 @@ git commit -m "test(client): edge cases — defaults, ForceBase64, close-before-
 
 ---
 
-## Task CC-3.3: Final CC-3 verification
+## Task CC-3.3: Final CC-3 verification — DONE
 
 - [ ] **Step 1: Release build + test across all TFMs**
 
