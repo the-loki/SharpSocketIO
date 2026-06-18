@@ -11,10 +11,12 @@ internal sealed class FakeEngineIoConnection : IEngineIoConnection
     public int Protocol { get; set; } = 4;
     public Handshake Handshake { get; set; } = new();
     public List<string> Sent { get; } = new();
+    public List<byte[]> SentBinary { get; } = new();
     public Emitter Events { get; } = new Emitter();
     public bool Closed { get; private set; }
 
     public void Send(string encodedPayload) => Sent.Add(encodedPayload);
+    public void Send(byte[] binaryPayload) => SentBinary.Add(binaryPayload);
     public void Close(bool discard = false)
     {
         Closed = true;

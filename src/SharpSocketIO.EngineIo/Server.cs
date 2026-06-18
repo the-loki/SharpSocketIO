@@ -58,7 +58,8 @@ public sealed class Server : Emitter<UnitEvents>
         {
             upgrades = "[]";
         }
-        int maxPayload = Options.MaxPayload ?? 1000000;
+        // Advertise the actual HTTP body size limit the server enforces (mirrors upstream: maxHttpBufferSize)
+        long maxPayload = Options.MaxPayload ?? Options.MaxHttpBufferSize;
         return "{\"sid\":\"" + sid + "\",\"upgrades\":" + upgrades +
                ",\"pingInterval\":" + Options.PingInterval +
                ",\"pingTimeout\":" + Options.PingTimeout +
@@ -167,6 +168,12 @@ public sealed class Server : Emitter<UnitEvents>
 
         if (!string.IsNullOrEmpty(sid) && Clients.TryGetValue(sid, out var existing))
         {
+            // Reject concurrent upgrade attempts (upstream: if client.upgrading || client.upgraded → close ws)
+            if (existing.Upgraded || existing.IsUpgrading)
+            {
+                try { await ws.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, "already upgraded", System.Threading.CancellationToken.None); } catch { }
+                return;
+            }
             // upgrade existing polling session
             var upgradeTransport = new WebSocketTransport(req, ws, Options.MaxHttpBufferSize);
             // force a polling cycle (send noop) for a fast probe

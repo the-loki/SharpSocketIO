@@ -13,6 +13,7 @@ public interface IEngineIoConnection
     int Protocol { get; }
     Handshake Handshake { get; }
     void Send(string encodedPayload);
+    void Send(byte[] binaryPayload);
     void Close(bool discard = false);
     Emitter Events { get; } // emits "data" (string), "close", "error"
 }

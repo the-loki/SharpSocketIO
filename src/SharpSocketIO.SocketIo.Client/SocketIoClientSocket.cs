@@ -150,7 +150,7 @@ public sealed class SocketIoClientSocket : Emitter<UnitEvents>
 
     private static string? ExtractId(object? data)
     {
-        // server CONNECT ack may carry { sid } — extract if present
+        // server CONNECT ack carries { sid } — extract from string or Dictionary
         if (data is string s)
         {
             try
@@ -159,6 +159,10 @@ public sealed class SocketIoClientSocket : Emitter<UnitEvents>
                 if (doc.RootElement.TryGetProperty("sid", out var sid)) return sid.GetString();
             }
             catch { }
+        }
+        else if (data is System.Collections.IDictionary dict && dict.Contains("sid"))
+        {
+            return dict["sid"]?.ToString();
         }
         return null;
     }

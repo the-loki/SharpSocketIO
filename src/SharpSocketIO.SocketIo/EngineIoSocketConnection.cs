@@ -45,5 +45,10 @@ public sealed class EngineIoSocketConnection : IEngineIoConnection
         _socket.Send(new[] { new EngineIo.Parser.Commons.Packet(EioPacketType.Message, new RawData(encodedPayload)) });
     }
 
+    public void Send(byte[] binaryPayload)
+    {
+        _socket.Send(new[] { new EngineIo.Parser.Commons.Packet(EioPacketType.Message, new RawData(binaryPayload)) });
+    }
+
     public void Close(bool discard = false) => _socket.Close();
 }

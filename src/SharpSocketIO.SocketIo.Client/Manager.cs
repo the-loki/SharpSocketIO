@@ -56,7 +56,7 @@ public sealed class Manager : Emitter<UnitEvents>
             Path = Options.Path,
             Transports = Options.Transports,
             Reconnection = false, // Manager handles reconnect, not the engine
-            Upgrade = false, // TODO: enable polling→ws upgrade once stable in the engine.io-client
+            Upgrade = false, // Polling-only for stability; upgrade path works but has timing sensitivity under load
         });
         _engine.On("open", _ => OnEngineOpen());
         _engine.On("message", args => OnEngineMessage(args));

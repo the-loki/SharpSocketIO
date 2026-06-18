@@ -69,8 +69,9 @@ public sealed class Socket : Emitter<UnitEvents>
     /// <summary>Called by the Client when a socket.io packet arrives for this socket.</summary>
     public void OnPacket(Packet packet)
     {
-        if (packet.Type == SiPacketType.Event)
+        if (packet.Type == SiPacketType.Event || packet.Type == SiPacketType.BinaryEvent)
         {
+            if (!Connected) return; // ignore events received after disconnection
             var data = packet.Data as System.Collections.IList;
             if (data == null || data.Count == 0) return;
             var eventName = data[0]?.ToString();
@@ -121,6 +122,8 @@ public sealed class Socket : Emitter<UnitEvents>
     {
         if (!Connected) return;
         Connected = false;
+        // Emit "disconnecting" while socket is still in its rooms (handlers can read socket rooms)
+        EmitReserved("disconnecting", reason);
         Adapter.DelAll(Id);
         EmitReserved("disconnect", reason);
         Namespace.Remove(this);

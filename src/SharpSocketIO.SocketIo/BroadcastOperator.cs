@@ -77,17 +77,43 @@ public sealed class BroadcastOperator
             Data = new[] { eventName }.Concat(args).ToArray(),
         };
         var encoder = _nsp.Server.Encoder;
-        string encoded = string.Empty;
-        foreach (var part in encoder.Encode(packet))
-        {
-            if (part is string s) { encoded = s; break; }
-        }
-        return _adapter.BroadcastAsync(encoded, new BroadcastOptions
+        var encodedParts = encoder.Encode(packet);
+        // For in-process broadcast: deliver all encoded parts (header + binary attachments)
+        // to each matching socket via the namespace.
+        var opts = new BroadcastOptions
         {
             Rooms = _rooms,
             Except = _except.Count == 0 ? null : _except,
             Flags = _flags,
-        });
+        };
+        // Find matching sockets and send all parts (preserves binary attachments)
+        foreach (var sid in MatchSocketsForBroadcast(opts))
+        {
+            _nsp.SendPartsToSocket(sid, encodedParts);
+        }
+        return Task.CompletedTask;
+    }
+
+    private IEnumerable<string> MatchSocketsForBroadcast(BroadcastOptions opts)
+    {
+        var rooms = opts.Rooms;
+        var except = opts.Except ?? new HashSet<string>();
+        var matched = new HashSet<string>();
+        if (rooms == null || rooms.Count == 0)
+        {
+            foreach (var sid in _adapter.Sids.Keys) matched.Add(sid);
+        }
+        else
+        {
+            foreach (var r in rooms)
+                if (_adapter.Rooms.TryGetValue(r, out var set))
+                    foreach (var sid in set) matched.Add(sid);
+        }
+        // Expand except rooms to their socket members
+        foreach (var exRoom in except)
+            if (_adapter.Rooms.TryGetValue(exRoom, out var exSet))
+                foreach (var sid in exSet) matched.Remove(sid);
+        return matched;
     }
 
     private BroadcastFlags CloneFlags() => new()

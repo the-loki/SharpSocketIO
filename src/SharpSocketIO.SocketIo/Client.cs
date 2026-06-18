@@ -55,8 +55,13 @@ public sealed class Client
         var nsp = Server.Of(nspName);
         var socket = nsp.Add(this, auth?.ToString());
         _socketsByNsp[nspName] = socket;
-        // reply with CONNECT ack
-        SendPacket(new Packet { Type = PacketType.Connect, Nsp = nspName });
+        // reply with CONNECT ack — protocol v5 requires {sid} in the data (as a JSON object, not a string)
+        SendPacket(new Packet
+        {
+            Type = PacketType.Connect,
+            Nsp = nspName,
+            Data = new Dictionary<string, object> { ["sid"] = socket.Id },
+        });
     }
 
     /// <summary>Encodes a socket.io packet and sends it down the engine.io connection.</summary>
@@ -65,15 +70,27 @@ public sealed class Client
         foreach (var part in _encoder.Encode(packet))
         {
             if (part is string s) Conn.Send(s);
+            else if (part is byte[] b) Conn.Send(b);
         }
     }
 
     /// <summary>Sends a pre-encoded string packet (used by Namespace broadcast delivery).</summary>
     public void SendRaw(string encoded) => Conn.Send(encoded);
 
+    /// <summary>Sends pre-encoded parts (header + binary attachments) for broadcast delivery.</summary>
+    public void SendRawParts(System.Collections.Generic.IReadOnlyList<object> parts)
+    {
+        foreach (var part in parts)
+        {
+            if (part is string s) Conn.Send(s);
+            else if (part is byte[] b) Conn.Send(b);
+        }
+    }
+
     private void OnClose(string reason)
     {
-        foreach (var s in _socketsByNsp.Values.ToList()) s.OnDisconnect();
+        // Propagate the real disconnect reason (transport close, ping timeout, etc.)
+        foreach (var s in _socketsByNsp.Values.ToList()) s.OnDisconnect(reason);
         _socketsByNsp.Clear();
     }
 }

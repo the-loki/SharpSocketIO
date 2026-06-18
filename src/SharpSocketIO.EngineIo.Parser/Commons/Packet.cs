@@ -24,7 +24,37 @@ public sealed class Packet : IEquatable<Packet>
 
     public override bool Equals(object? obj) => Equals(obj as Packet);
 
-    public override int GetHashCode() => HashCode.Combine(Type, Data);
+    public override int GetHashCode()
+    {
+        // Hash on Type + Kind + content to maintain Equals/GetHashCode contract.
+        // Two RawData wrapping equal byte content but different array instances must hash equally.
+        int hash = Type.GetHashCode();
+        if (Data is null or { Kind: RawDataKind.None }) return hash;
+        var d = Data.Value;
+        hash = HashCode.Combine(hash, d.Kind);
+        switch (d.Kind)
+        {
+            case RawDataKind.String:
+                return HashCode.Combine(hash, d.AsString()?.GetHashCode() ?? 0);
+            case RawDataKind.Int32:
+                return HashCode.Combine(hash, (int)d.Value!);
+            case RawDataKind.ByteArray:
+                {
+                    var b = d.AsByteArray()!;
+                    foreach (var x in b) hash = HashCode.Combine(hash, x);
+                    return hash;
+                }
+            case RawDataKind.ArrayBuffer:
+                {
+                    var ab = d.AsArrayBuffer()!.Value;
+                    for (int i = 0; i < ab.ByteLength; i++)
+                        hash = HashCode.Combine(hash, ab.Buffer[ab.ByteOffset + i]);
+                    return hash;
+                }
+            default:
+                return hash;
+        }
+    }
 
     public override string ToString()
         => Data is { Kind: not RawDataKind.None } d ? $"{Type}:{d.Value}" : Type.ToString();
