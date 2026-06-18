@@ -12,7 +12,7 @@
 
 ---
 
-## Task CE-1: ComponentEmitter project skeleton + tests
+## Task CE-1: ComponentEmitter project skeleton + tests — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.ComponentEmitter/SharpSocketIO.ComponentEmitter.csproj`
@@ -271,7 +271,7 @@ Expected: compile failure (`Emitter` type missing).
 
 ---
 
-## Task CE-2: Implement `Emitter`
+## Task CE-2: Implement `Emitter` — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.ComponentEmitter/Emitter.cs`
@@ -447,7 +447,7 @@ git commit -m "feat(emitter): port @socket.io/component-emitter to SharpSocketIO
 
 ---
 
-## Task P-1: SocketIo.Parser project skeleton
+## Task P-1: SocketIo.Parser project skeleton — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.SocketIo.Parser/SharpSocketIO.SocketIo.Parser.csproj`
@@ -500,7 +500,7 @@ dotnet sln add tests/SharpSocketIO.SocketIo.Parser.Tests/SharpSocketIO.SocketIo.
 
 ---
 
-## Task P-2: Core types — `PacketType`, `Packet`, `ReservedEvents`, protocol constant
+## Task P-2: Core types — `PacketType`, `Packet`, `ReservedEvents`, protocol constant — DONE
 
 **Files:**
 - Create: `src/.../Commons/PacketType.cs`
@@ -785,7 +785,7 @@ git commit -m "test(parser): port socket.io-parser parser.js tests (red baseline
 
 ---
 
-## Task P-3: Implement `Encoder` (string encode path)
+## Task P-3: Implement `Encoder` (string encode path) — DONE
 
 **Files:**
 - Modify: `src/.../Encoder.cs`
@@ -1074,7 +1074,7 @@ git commit -m "feat(parser): Encoder + IsBinary/HasBinary + binary deconstruct/r
 
 ---
 
-## Task P-4: Implement `Decoder` (state machine + BinaryReconstructor)
+## Task P-4: Implement `Decoder` (state machine + BinaryReconstructor) — DONE
 
 **Files:**
 - Modify: `src/.../Decoder.cs`
@@ -1549,7 +1549,7 @@ git commit -m "feat(parser): Decoder state machine + BinaryReconstructor + IsPac
 
 ---
 
-## Task P-5: Port `test/buffer.js` + `test/arraybuffer.js` (binary round-trip tests)
+## Task P-5: Port `test/buffer.js` + `test/arraybuffer.js` (binary round-trip tests) — DONE
 
 **Files:**
 - Create: `tests/.../BufferTests.cs`
@@ -1785,7 +1785,7 @@ git commit -m "test(parser): port socket.io-parser buffer.js + arraybuffer.js te
 
 ---
 
-## Task P-6: Final verification
+## Task P-6: Final verification — DONE
 
 - [ ] **Step 1: Clean rebuild + Release test across all TFMs**
 
