@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
+    <RootNamespace>SharpSocketIO.ClusterEngine</RootNamespace>
+    <AssemblyName>SharpSocketIO.ClusterEngine</AssemblyName>
+    <Version>0.1.0</Version>
+    <Description>Cluster-friendly engine.io server — C# port of @socket.io/cluster-engine.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpSocketIO.EngineIo\SharpSocketIO.EngineIo.csproj" />
+    <ProjectReference Include="..\SharpSocketIO.EngineIo.Parser\SharpSocketIO.EngineIo.Parser.csproj" />
+    <ProjectReference Include="..\SharpSocketIO.ComponentEmitter\SharpSocketIO.ComponentEmitter.csproj" />
+  </ItemGroup>
+</Project>
