@@ -21,7 +21,8 @@ public class PollingHttp : Polling
 {
     public const int DefaultCompressionThreshold = 1024;
 
-    private readonly HttpContext _ctx;
+    private HttpContext _ctx;
+    private HttpContextEngineRequest? _boundReq;
     private readonly long _maxHttpBufferSize;
     private readonly bool _httpCompression;
     private readonly int _compressionThreshold;
@@ -32,12 +33,20 @@ public class PollingHttp : Polling
         : base(req)
     {
         _ctx = req.HttpContext;
+        _boundReq = req;
         _maxHttpBufferSize = maxHttpBufferSize == 0 ? 1_000_000 : maxHttpBufferSize;
         _httpCompression = httpCompression;
         _compressionThreshold = DefaultCompressionThreshold;
     }
 
     public HttpContext HttpContext => _ctx;
+
+    /// <summary>Rebinds the current HTTP context on each new request (polling serves many requests per session).</summary>
+    public void BindRequest(HttpContextEngineRequest req)
+    {
+        _ctx = req.HttpContext;
+        _boundReq = req;
+    }
 
     /// <summary>Handle a polling GET. If outbound buffer non-empty, flush; else hold until FlushToWaiter.</summary>
     public async Task HandleGetAsync()
@@ -70,14 +79,15 @@ public class PollingHttp : Polling
     /// <summary>POST data ingest: read body, enforce maxHttpBufferSize, decode, emit packets, reply ok.</summary>
     public async Task HandlePostAsync()
     {
-        var req = new HttpContextEngineRequest(_ctx);
-        var bodyBytes = req.Body ?? Array.Empty<byte>();
+        if (_boundReq == null) throw new InvalidOperationException("no bound request");
+        await _boundReq.ReadBodyAsync();
+        var bodyBytes = _boundReq.Body ?? Array.Empty<byte>();
         if (bodyBytes.Length > _maxHttpBufferSize)
         {
             _ctx.Response.StatusCode = 413;
             return;
         }
-        OnDataRequest(req);
+        OnDataRequest(_boundReq);
         _ctx.Response.StatusCode = 200;
         _ctx.Response.ContentType = "text/html";
         _ctx.Response.ContentLength = 2;

@@ -121,6 +121,7 @@ public sealed class Server : Emitter<UnitEvents>
             await WriteErrorAsync(ctx, ErrorCodes.BadRequest, "Transport mismatch");
             return;
         }
+        transport.BindRequest(req);
         if (ctx.Request.Method == "POST") await transport.HandlePostAsync();
         else await transport.HandleGetAsync();
     }

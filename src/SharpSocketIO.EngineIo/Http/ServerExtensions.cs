@@ -6,13 +6,13 @@ using SharpSocketIO.EngineIo.Commons;
 namespace SharpSocketIO.EngineIo.Http;
 
 /// <summary>
-/// ASP.NET Core integration for engine.io. ServerExtensions.Attach mounts a middleware
-/// on a WebApplication that serves the engine.io polling surface at the configured path.
-/// Port of lib/engine.ts attach().
+/// ASP.NET Core integration for engine.io. Attach mounts a middleware on an
+/// IApplicationBuilder (WebApplication satisfies this) that serves the engine.io
+/// polling surface at the configured path. Port of lib/engine.ts attach().
 /// </summary>
 public static class ServerExtensions
 {
-    public static Server Attach(this Server engine, WebApplication app, AttachOptions? opts = null)
+    public static Server Attach(this Server engine, IApplicationBuilder app, AttachOptions? opts = null)
     {
         opts ??= new AttachOptions();
         string matchPath = opts.Path;

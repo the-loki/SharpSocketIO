@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using SharpSocketIO.EngineIo.Commons;
 
@@ -8,12 +9,14 @@ namespace SharpSocketIO.EngineIo.Http;
 
 /// <summary>
 /// Adapts an ASP.NET Core HttpContext to the IEngineRequest abstraction the
-/// engine.io logic core consumes. Body is read lazily on first access (POST).
+/// engine.io logic core consumes. Body is read lazily; use ReadBodyAsync first
+/// for POST (TestHost disallows synchronous IO by default).
 /// </summary>
 public sealed class HttpContextEngineRequest : IEngineRequest
 {
     private readonly HttpContext _ctx;
     private byte[]? _body;
+    private bool _bodyRead;
 
     public HttpContextEngineRequest(HttpContext ctx) { _ctx = ctx; }
 
@@ -42,18 +45,16 @@ public sealed class HttpContextEngineRequest : IEngineRequest
 
     public string? RemoteAddress => _ctx.Connection.RemoteIpAddress?.ToString();
 
-    public byte[]? Body
+    public byte[]? Body => _body;
+
+    /// <summary>Reads the request body asynchronously and caches it. Call before accessing Body on POST.</summary>
+    public async Task ReadBodyAsync()
     {
-        get
-        {
-            if (_body == null)
-            {
-                using var ms = new MemoryStream();
-                _ctx.Request.Body.CopyTo(ms);
-                _body = ms.ToArray();
-            }
-            return _body;
-        }
+        if (_bodyRead) return;
+        using var ms = new MemoryStream();
+        await _ctx.Request.Body.CopyToAsync(ms);
+        _body = ms.ToArray();
+        _bodyRead = true;
     }
 
     public HttpContext HttpContext => _ctx;
