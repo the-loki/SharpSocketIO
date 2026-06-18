@@ -11,7 +11,7 @@ namespace SharpSocketIO.EngineIo.Transports;
 public abstract class Transport : Emitter<UnitEvents>
 {
     public string? Sid { get; set; }
-    public bool Writable { get; protected set; }
+    public bool Writable { get; set; }
     public int Protocol { get; }
     public ReadyState ReadyState { get; protected set; } = ReadyState.Open;
     public bool Discarded { get; private set; }
