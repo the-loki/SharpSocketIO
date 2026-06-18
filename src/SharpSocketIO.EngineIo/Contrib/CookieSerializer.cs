@@ -23,8 +23,17 @@ public static class CookieSerializer
         if (!string.IsNullOrEmpty(opts?.Path)) sb.Append("; Path=").Append(opts.Path);
         if (opts?.Secure == true) sb.Append("; Secure");
         if (opts?.HttpOnly == true) sb.Append("; HttpOnly");
+        if (!string.IsNullOrEmpty(opts?.SameSite)) sb.Append("; SameSite=").Append(Capitalize(opts.SameSite));
         return sb.ToString();
     }
+
+    private static string Capitalize(string? s) => s switch
+    {
+        "lax" or "Lax" => "Lax",
+        "strict" or "Strict" => "Strict",
+        "none" or "None" => "None",
+        _ => s!,
+    };
 
     public static IReadOnlyDictionary<string, string> Parse(string str)
     {

@@ -14,7 +14,7 @@ namespace SharpSocketIO.EngineIo.Transports;
 /// payloads → emit packets; buffer outbound packets and flush as a \x1e-joined
 /// string (mirrors JS encodePayload's supportsBinary=false path).
 /// </summary>
-public sealed class Polling : Transport
+public class Polling : Transport
 {
     private const char Sep = (char)30;
     private readonly List<Packet> _outbound = new();

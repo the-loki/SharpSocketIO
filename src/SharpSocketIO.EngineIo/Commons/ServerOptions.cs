@@ -15,12 +15,23 @@ public sealed class ServerOptions
     public object? PerMessageDeflate { get; set; }
     public bool HttpCompression { get; set; } = true;
     public string CorsOrigin { get; set; } = "*";
-    public CookieOptions? Cookie { get; set; }
+    public Func<string>? GenerateId { get; set; }
+    /// <summary>Cookie config: null (no cookie) or a config object.</summary>
+    public CookieConfig? CookieConfig { get; set; }
     public bool AllowEIO3 { get; set; } = false;
     public int? MaxPayload { get; set; }
 }
 
-/// <summary>Minimal request abstraction the server/transport logic sees (3A).</summary>
+/// <summary>Cookie configuration (port of the 'cookie' option in engine.io).</summary>
+public sealed class CookieConfig
+{
+    public string? Name { get; set; }
+    public string? Path { get; set; }
+    public bool? HttpOnly { get; set; }
+    public string? SameSite { get; set; } // "lax"/"strict"/"none"
+    public int? MaxAge { get; set; }
+}
+
 public interface IEngineRequest
 {
     string Method { get; }
