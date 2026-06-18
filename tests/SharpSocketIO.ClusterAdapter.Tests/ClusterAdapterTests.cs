@@ -10,6 +10,7 @@ internal sealed class FakeNsp : IAdapterNamespace
 {
     public List<(string sid, string packet)> Sent { get; } = new();
     public void Send(string socketId, string packet) => Sent.Add((socketId, packet));
+    public void SendParts(string socketId, System.Collections.Generic.IReadOnlyList<object> parts) { }
 }
 
 public class ClusterAdapterTests

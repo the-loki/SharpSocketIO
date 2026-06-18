@@ -102,6 +102,17 @@ public class Adapter : Emitter<UnitEvents>
         return Task.CompletedTask;
     }
 
+    /// <summary>Broadcasts pre-encoded parts (header + binary attachments) to matching sockets.</summary>
+    public virtual Task BroadcastPartsAsync(IReadOnlyList<object> parts, BroadcastOptions opts)
+    {
+        var except = opts.Except ?? new HashSet<string>();
+        foreach (var sid in MatchSockets(opts.Rooms, except))
+        {
+            Nsp.SendParts(sid, parts);
+        }
+        return Task.CompletedTask;
+    }
+
     private IEnumerable<string> MatchSockets(ISet<string> rooms, ISet<string> except)
     {
         var matched = new HashSet<string>();
@@ -129,6 +140,8 @@ public class Adapter : Emitter<UnitEvents>
     private sealed class ThrowingNamespace : IAdapterNamespace
     {
         public void Send(string socketId, string packet) =>
+            throw new System.NotImplementedException("Namespace does not implement IAdapterNamespace");
+        public void SendParts(string socketId, IReadOnlyList<object> parts) =>
             throw new System.NotImplementedException("Namespace does not implement IAdapterNamespace");
     }
 }

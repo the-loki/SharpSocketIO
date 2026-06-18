@@ -14,6 +14,7 @@ namespace SharpSocketIO.ComponentEmitter;
 public class Emitter<TEvents>
 {
     private Dictionary<string, List<Delegate>>? _callbacks;
+    private readonly object _lock = new();
 
     protected Emitter() { }
 
@@ -25,13 +26,16 @@ public class Emitter<TEvents>
 
     private Emitter<TEvents> AddListener(string eventName, Delegate fn)
     {
-        _callbacks ??= new Dictionary<string, List<Delegate>>();
-        if (!_callbacks.TryGetValue(eventName, out var list))
+        lock (_lock)
         {
-            list = new List<Delegate>();
-            _callbacks[eventName] = list;
+            _callbacks ??= new Dictionary<string, List<Delegate>>();
+            if (!_callbacks.TryGetValue(eventName, out var list))
+            {
+                list = new List<Delegate>();
+                _callbacks[eventName] = list;
+            }
+            list.Add(fn);
         }
-        list.Add(fn);
         return this;
     }
 
@@ -64,39 +68,46 @@ public class Emitter<TEvents>
 
     public Emitter<TEvents> Off(string eventName)
     {
-        _callbacks?.Remove(eventName);
+        lock (_lock) { _callbacks?.Remove(eventName); }
         return this;
     }
 
     public Emitter<TEvents> Off()
     {
-        _callbacks?.Clear();
+        lock (_lock) { _callbacks?.Clear(); }
         return this;
     }
 
     private Emitter<TEvents> RemoveListener(string eventName, Delegate fn)
     {
-        if (_callbacks == null) return this;
-        if (!_callbacks.TryGetValue(eventName, out var list)) return this;
-        for (int i = 0; i < list.Count; i++)
+        lock (_lock)
         {
-            var cb = list[i];
-            if (cb == fn || WrapperMap.Get(cb) == fn)
+            if (_callbacks == null) return this;
+            if (!_callbacks.TryGetValue(eventName, out var list)) return this;
+            for (int i = 0; i < list.Count; i++)
             {
-                list.RemoveAt(i);
-                break;
+                var cb = list[i];
+                if (cb == fn || WrapperMap.Get(cb) == fn)
+                {
+                    list.RemoveAt(i);
+                    break;
+                }
             }
+            if (list.Count == 0) _callbacks.Remove(eventName);
         }
-        if (list.Count == 0) _callbacks.Remove(eventName);
         return this;
     }
 
-    /// <summary>Emit an event with the given args. Handlers may mutate the listener set during emit (snapshot taken).</summary>
+    /// <summary>Emit an event with the given args. Thread-safe: snapshots listeners under lock, invokes outside lock.</summary>
     public Emitter<TEvents> Emit(string eventName, params object[] args)
     {
-        if (_callbacks == null) return this;
-        if (!_callbacks.TryGetValue(eventName, out var list)) return this;
-        var snapshot = list.ToArray();
+        Delegate[] snapshot;
+        lock (_lock)
+        {
+            if (_callbacks == null) return this;
+            if (!_callbacks.TryGetValue(eventName, out var list)) return this;
+            snapshot = list.ToArray();
+        }
         foreach (var cb in snapshot)
         {
             InvokeHandler(cb, args);
@@ -109,8 +120,11 @@ public class Emitter<TEvents>
 
     public IReadOnlyList<Delegate> Listeners(string eventName)
     {
-        if (_callbacks != null && _callbacks.TryGetValue(eventName, out var list))
-            return list;
+        lock (_lock)
+        {
+            if (_callbacks != null && _callbacks.TryGetValue(eventName, out var list))
+                return list.ToArray();
+        }
         return Array.Empty<Delegate>();
     }
 

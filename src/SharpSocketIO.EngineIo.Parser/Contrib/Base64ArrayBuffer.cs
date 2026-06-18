@@ -56,10 +56,11 @@ internal static class Base64ArrayBuffer
         int p = 0;
         for (int i = 0; i < len; i += 4)
         {
-            int e1 = Lookup(base64[i]);
-            int e2 = Lookup(base64[i + 1]);
-            int e3 = Lookup(base64[i + 2]);
-            int e4 = Lookup(base64[i + 3]);
+            // Guard against malformed (non-multiple-of-4) input — JS tolerates via NaN coercion.
+            int e1 = i < len ? Lookup(base64[i]) : 0;
+            int e2 = i + 1 < len ? Lookup(base64[i + 1]) : 0;
+            int e3 = i + 2 < len ? Lookup(base64[i + 2]) : 0;
+            int e4 = i + 3 < len ? Lookup(base64[i + 3]) : 0;
             if (p < bufferLength) bytes[p++] = (byte)((e1 << 2) | (e2 >> 4));
             if (p < bufferLength) bytes[p++] = (byte)(((e2 & 15) << 4) | (e3 >> 2));
             if (p < bufferLength) bytes[p++] = (byte)(((e3 & 3) << 6) | (e4 & 63));

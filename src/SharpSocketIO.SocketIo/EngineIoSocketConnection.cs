@@ -27,8 +27,11 @@ public sealed class EngineIoSocketConnection : IEngineIoConnection
         {
             if (args.Length > 0 && args[0] is RawData rd)
             {
-                var text = rd.Kind == RawDataKind.String ? rd.AsString() : null;
-                if (text != null) _events.Emit("data", text);
+                if (rd.Kind == RawDataKind.String)
+                    _events.Emit("data", rd.AsString()!);
+                else if (rd.Kind == RawDataKind.ByteArray)
+                    _events.Emit("data", rd.AsByteArray()!);
+                // Binary engine.io messages carry socket.io binary attachment frames
             }
         });
         socket.On("close", args => _events.Emit("close", args.Length > 0 ? args[0] : DisconnectReasons.TransportClose));
@@ -43,6 +46,11 @@ public sealed class EngineIoSocketConnection : IEngineIoConnection
     public void Send(string encodedPayload)
     {
         _socket.Send(new[] { new EngineIo.Parser.Commons.Packet(EioPacketType.Message, new RawData(encodedPayload)) });
+    }
+
+    public void Send(byte[] binaryPayload)
+    {
+        _socket.Send(new[] { new EngineIo.Parser.Commons.Packet(EioPacketType.Message, new RawData(binaryPayload)) });
     }
 
     public void Close(bool discard = false) => _socket.Close();

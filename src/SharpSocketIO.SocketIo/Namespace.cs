@@ -89,8 +89,20 @@ public sealed class Namespace : Emitter<UnitEvents>, IAdapterNamespace
     {
         if (Sockets.TryGetValue(socketId, out var socket))
         {
-            // 5A: the broadcast path passes a pre-encoded string packet; deliver as-is
             socket.Client.SendRaw(packet);
         }
     }
+
+    /// <summary>IAdapterNamespace: send pre-encoded parts (header + binary attachments) to a specific socket.</summary>
+    void IAdapterNamespace.SendParts(string socketId, System.Collections.Generic.IReadOnlyList<object> parts)
+    {
+        if (Sockets.TryGetValue(socketId, out var socket))
+        {
+            socket.Client.SendRawParts(parts);
+        }
+    }
+
+    /// <summary>Sends pre-encoded parts to a specific socket (internal alias).</summary>
+    internal void SendPartsToSocket(string socketId, System.Collections.Generic.IReadOnlyList<object> parts)
+        => ((IAdapterNamespace)this).SendParts(socketId, parts);
 }

@@ -41,7 +41,11 @@ public static class DecodePacket
             case BinaryType.ArrayBuffer:
                 if (data.Kind == RawDataKind.ArrayBuffer)
                 {
-                    return data; // already an ArrayBuffer
+                    // Materialize the addressed byte range (handles offset/length views correctly)
+                    var ab = data.AsArrayBuffer()!.Value;
+                    if (ab.ByteOffset == 0 && ab.ByteLength == ab.Buffer.Length)
+                        return data; // already a full buffer — return as-is
+                    return new RawData(new ArrayBuffer(ab.ToArray()));
                 }
                 if (data.Kind == RawDataKind.ByteArray)
                 {

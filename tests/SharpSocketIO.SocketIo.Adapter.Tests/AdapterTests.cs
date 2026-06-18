@@ -9,7 +9,9 @@ namespace SharpSocketIO.SocketIo.Adapter.Tests;
 internal sealed class FakeNamespace : IAdapterNamespace
 {
     public List<(string socketId, string packet)> Sent { get; } = new();
+    public List<(string socketId, IReadOnlyList<object> parts)> SentParts { get; } = new();
     public void Send(string socketId, string packet) => Sent.Add((socketId, packet));
+    public void SendParts(string socketId, IReadOnlyList<object> parts) => SentParts.Add((socketId, parts));
 }
 
 public class AdapterTests

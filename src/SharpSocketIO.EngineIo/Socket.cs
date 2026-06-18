@@ -20,6 +20,7 @@ public sealed class Socket : Emitter<UnitEvents>
     public ReadyState ReadyState { get; private set; } = ReadyState.Opening;
     public Transport Transport { get; private set; }
     public bool Upgraded { get; private set; }
+    public bool IsUpgrading => _upgrading;
 
     private readonly object _gate = new();
     private readonly List<Packet> _writeBuffer = new();
@@ -113,7 +114,15 @@ public sealed class Socket : Emitter<UnitEvents>
             switch (packet.Type)
             {
                 case EioPacketType.Ping:
+                    // In protocol v4, the server sends ping and the client answers pong.
+                    // A client-initiated ping is abnormal but we tolerate it (don't break interop).
                     Transport.Send(new[] { new Packet(EioPacketType.Pong, packet.Data ?? default) });
+                    break;
+                case EioPacketType.Pong:
+                    // Client answered our ping — clear the timeout and re-arm the interval timer.
+                    _pingTimeoutTimer?.Dispose();
+                    _pingTimeoutTimer = null;
+                    SchedulePing();
                     break;
                 case EioPacketType.Message:
                     Emit("message", packet.Data ?? default);

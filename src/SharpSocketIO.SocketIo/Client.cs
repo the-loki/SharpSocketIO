@@ -24,11 +24,15 @@ public sealed class Client
         _encoder = server.Encoder;
         _decoder = new Decoder();
         _decoder.On("decoded", args => OnDecoded((Packet)args[0]));
-        Conn.Events.On("data", args => OnData(args.Length > 0 ? args[0]?.ToString() ?? "" : ""));
-        Conn.Events.On("close", args => OnClose(args.Length > 0 ? (args[0]?.ToString() ?? DisconnectReasons.ForcedClose) : DisconnectReasons.ForcedClose));
+        Conn.Events.On("data", args =>
+        {
+            if (args.Length == 0) return;
+            // String data = socket.io text packet; byte[] = binary attachment frame
+            if (args[0] is string s) _decoder.Add(s);
+            else if (args[0] is byte[] b) _decoder.Add(b);
+        });
+        Conn.Events.On("close", args => OnClose(args.Length > 0 ? (args[0]?.ToString() ?? DisconnectReasons.TransportClose) : DisconnectReasons.TransportClose));
     }
-
-    private void OnData(string data) => _decoder.Add(data);
 
     private void OnDecoded(Packet packet)
     {
@@ -55,8 +59,13 @@ public sealed class Client
         var nsp = Server.Of(nspName);
         var socket = nsp.Add(this, auth?.ToString());
         _socketsByNsp[nspName] = socket;
-        // reply with CONNECT ack
-        SendPacket(new Packet { Type = PacketType.Connect, Nsp = nspName });
+        // reply with CONNECT ack — protocol v5 requires {sid} in the data (as a JSON object, not a string)
+        SendPacket(new Packet
+        {
+            Type = PacketType.Connect,
+            Nsp = nspName,
+            Data = new Dictionary<string, object> { ["sid"] = socket.Id },
+        });
     }
 
     /// <summary>Encodes a socket.io packet and sends it down the engine.io connection.</summary>
@@ -65,15 +74,27 @@ public sealed class Client
         foreach (var part in _encoder.Encode(packet))
         {
             if (part is string s) Conn.Send(s);
+            else if (part is byte[] b) Conn.Send(b);
         }
     }
 
     /// <summary>Sends a pre-encoded string packet (used by Namespace broadcast delivery).</summary>
     public void SendRaw(string encoded) => Conn.Send(encoded);
 
+    /// <summary>Sends pre-encoded parts (header + binary attachments) for broadcast delivery.</summary>
+    public void SendRawParts(System.Collections.Generic.IReadOnlyList<object> parts)
+    {
+        foreach (var part in parts)
+        {
+            if (part is string s) Conn.Send(s);
+            else if (part is byte[] b) Conn.Send(b);
+        }
+    }
+
     private void OnClose(string reason)
     {
-        foreach (var s in _socketsByNsp.Values.ToList()) s.OnDisconnect();
+        // Propagate the real disconnect reason (transport close, ping timeout, etc.)
+        foreach (var s in _socketsByNsp.Values.ToList()) s.OnDisconnect(reason);
         _socketsByNsp.Clear();
     }
 }

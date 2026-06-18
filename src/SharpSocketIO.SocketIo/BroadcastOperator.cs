@@ -77,17 +77,15 @@ public sealed class BroadcastOperator
             Data = new[] { eventName }.Concat(args).ToArray(),
         };
         var encoder = _nsp.Server.Encoder;
-        string encoded = string.Empty;
-        foreach (var part in encoder.Encode(packet))
-        {
-            if (part is string s) { encoded = s; break; }
-        }
-        return _adapter.BroadcastAsync(encoded, new BroadcastOptions
+        var encodedParts = encoder.Encode(packet);
+        var opts = new BroadcastOptions
         {
             Rooms = _rooms,
             Except = _except.Count == 0 ? null : _except,
             Flags = _flags,
-        });
+        };
+        // Route through the adapter so cluster adapters can fan out (preserves binary attachments)
+        return _adapter.BroadcastPartsAsync(encodedParts, opts);
     }
 
     private BroadcastFlags CloneFlags() => new()
