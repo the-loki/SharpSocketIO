@@ -20,7 +20,9 @@ public static class EncodePacket
         {
             if (supportsBinary)
             {
-                callback(ToRawByteArray(packet.Data.Value));
+                // JS: `callback(data)` — returns the original data object unchanged
+                // (so encodedPacket === packet.data, and an ArrayBuffer stays an ArrayBuffer).
+                callback(packet.Data.Value);
             }
             else
             {

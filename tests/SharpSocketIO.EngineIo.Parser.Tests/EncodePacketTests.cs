@@ -49,12 +49,16 @@ public class EncodePacketTests
     [Fact]
     public void Encodes_a_typed_array_with_offset_and_length()
     {
+        // Mirrors node.ts: data = new Int8Array(buffer, 1, 2). JS encodePacket returns
+        // the original typed-array view unchanged; expect.js's .eql compares it elementwise
+        // to Buffer.from([2,3]). Here the offset ArrayBuffer view is echoed back and its
+        // addressed bytes are [2,3].
         var buffer = new byte[] { 1, 2, 3, 4 };
-        var view = new ArrayBuffer(buffer, 1, 2); // bytes [2,3]
+        var view = new ArrayBuffer(buffer, 1, 2); // addressed bytes [2,3]
         var packet = new Packet(PacketType.Message, new RawData(view));
         var encoded = Encode(packet, true);
-        Assert.Equal(RawDataKind.ByteArray, encoded.Kind);
-        Assert.Equal(new byte[] { 2, 3 }, encoded.AsByteArray());
+        Assert.Equal(RawDataKind.ArrayBuffer, encoded.Kind);
+        Assert.True(encoded.AsArrayBuffer()!.Value.BytesEqual(new ArrayBuffer(new byte[] { 2, 3 })));
     }
 
     [Fact]

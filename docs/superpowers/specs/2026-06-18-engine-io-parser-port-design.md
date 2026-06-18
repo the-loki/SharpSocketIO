@@ -158,7 +158,10 @@ upgrade=`5`, noop=`6`. Unknown leading char → `error / "parser error"`.
 
 **`encodePacket`:**
 - `data` is binary (ArrayBuffer / typed array / byte[]) and `supportsBinary`:
-  returns `data` unchanged (noop).
+  returns `data` **unchanged** (echoes the original `RawData` value — mirrors JS
+  `callback(data)`, so an ArrayBuffer stays an ArrayBuffer and an offset view
+  stays an offset view; equality checks compare addressed bytes). The cast to a
+  flat `byte[]` only happens in `EncodeToBinary` (the stream path).
 - `data` is binary and `!supportsBinary`: returns `"b" + base64(data)`.
 - otherwise: returns `PACKET_TYPES[type] + (data ?? "")`.
 
