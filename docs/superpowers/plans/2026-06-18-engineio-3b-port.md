@@ -12,7 +12,7 @@
 
 ---
 
-## Task B-1: Add ASP.NET Core reference + `HttpContextEngineRequest`
+## Task B-1: Add ASP.NET Core reference + `HttpContextEngineRequest` — DONE
 
 **Files:**
 - Modify: `src/SharpSocketIO.EngineIo/SharpSocketIO.EngineIo.csproj`
@@ -108,7 +108,7 @@ git commit -m "build(engine): add ASP.NET Core framework reference + HttpContext
 
 ---
 
-## Task B-2: `PollingHttp` — HTTP-aware polling transport
+## Task B-2: `PollingHttp` — HTTP-aware polling transport — DONE
 
 The HTTP-aware polling transport. Holds the in-flight GET response via a
 `TaskCompletionSource`; flush completes it. POST ingest reads the body.
@@ -266,7 +266,7 @@ git commit -m "feat(engine): PollingHttp — HTTP-aware polling transport (long-
 
 ---
 
-## Task B-3: `ServerExtensions.Attach` + handshake/route middleware + cookie/CORS
+## Task B-3: `ServerExtensions.Attach` + handshake/route middleware + cookie/CORS — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.EngineIo/Http/ServerExtensions.cs`
@@ -583,7 +583,7 @@ git commit -m "feat(engine): ServerExtensions.Attach middleware + handshake/rout
 
 ---
 
-## Task B-4: TestDriver (HttpClient) + Kestrel ephemeral-port helper
+## Task B-4: TestDriver (HttpClient) + Kestrel ephemeral-port helper — DONE
 
 **Files:**
 - Create: `tests/.../Commons/TestDriver.cs`
@@ -686,7 +686,7 @@ git commit -m "test(engine): HttpClient TestDriver + TestServer ephemeral host"
 
 ---
 
-## Task B-5: Ported server.js round-trip tests
+## Task B-5: Ported server.js round-trip tests — DONE
 
 **Files:**
 - Create: `tests/.../HttpServerTests.cs`
@@ -875,7 +875,7 @@ git commit -m "test(engine): ported server.js HTTP round-trip subset (handshake/
 
 ---
 
-## Task B-6: JSONP transport + compression tests
+## Task B-6: JSONP transport + compression tests — DONE
 
 **Files:**
 - Create: `src/.../Transports/JsonpPolling.cs`
@@ -953,7 +953,7 @@ git commit -m "feat(engine): JsonpPolling + JSONP/compression test coverage"
 
 ---
 
-## Task B-7: Final 3B verification
+## Task B-7: Final 3B verification — DONE
 
 - [ ] **Step 1: Release build + test across all TFMs**
 
