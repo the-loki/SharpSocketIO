@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net9.0;net8.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>SharpSocketIO.SocketIo.Parser</RootNamespace>
+    <AssemblyName>SharpSocketIO.SocketIo.Parser</AssemblyName>
+    <Version>4.2.6</Version>
+    <Description>socket.io protocol parser — C# port of socket.io-parser v4.2.6.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpSocketIO.ComponentEmitter\SharpSocketIO.ComponentEmitter.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+</Project>

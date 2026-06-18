@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
+    <RootNamespace>SharpSocketIO.EngineIo.Client</RootNamespace>
+    <AssemblyName>SharpSocketIO.EngineIo.Client</AssemblyName>
+    <Version>6.6.6</Version>
+    <Description>Client for the realtime Engine — C# port of engine.io-client v6.6.6.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpSocketIO.EngineIo.Parser\SharpSocketIO.EngineIo.Parser.csproj" />
+    <ProjectReference Include="..\SharpSocketIO.ComponentEmitter\SharpSocketIO.ComponentEmitter.csproj" />
+  </ItemGroup>
+</Project>

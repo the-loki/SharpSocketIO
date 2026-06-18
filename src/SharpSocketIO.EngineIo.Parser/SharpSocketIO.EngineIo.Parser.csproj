@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net9.0;net8.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>SharpSocketIO.EngineIo.Parser</RootNamespace>
+    <AssemblyName>SharpSocketIO.EngineIo.Parser</AssemblyName>
+    <Version>5.2.3</Version>
+    <Description>Parser for the engine.io protocol — C# port of engine.io-parser v5.2.3.</Description>
+  </PropertyGroup>
+</Project>
