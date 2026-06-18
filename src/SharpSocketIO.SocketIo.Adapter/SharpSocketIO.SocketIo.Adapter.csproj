@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net9.0;net8.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>SharpSocketIO.SocketIo.Adapter</RootNamespace>
+    <AssemblyName>SharpSocketIO.SocketIo.Adapter</AssemblyName>
+    <Version>2.5.2</Version>
+    <Description>In-memory adapter for socket.io — C# port of socket.io-adapter v2.5.2.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpSocketIO.ComponentEmitter\SharpSocketIO.ComponentEmitter.csproj" />
+  </ItemGroup>
+</Project>
