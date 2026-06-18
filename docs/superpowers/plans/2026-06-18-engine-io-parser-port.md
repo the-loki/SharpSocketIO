@@ -44,7 +44,7 @@ tests/SharpSocketIO.EngineIo.Parser.Tests/
 
 ---
 
-## Task 1: Solution skeleton + projects
+## Task 1: Solution skeleton + projects — ✅ DONE
 
 **Files:**
 - Create: `Directory.Build.props`
@@ -124,7 +124,7 @@ git commit -m "build: solution skeleton for SharpSocketIO.EngineIo.Parser"
 
 ---
 
-## Task 2: Core types — `PacketType`, `PacketTypeMap`, `BinaryType`, `ArrayBuffer`, `RawData`
+## Task 2: Core types — `PacketType`, `PacketTypeMap`, `BinaryType`, `ArrayBuffer`, `RawData` — ✅ DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.EngineIo.Parser/Commons/PacketType.cs`
@@ -460,7 +460,7 @@ git commit -m "feat(parser): core types — PacketType, Packet, RawData, ArrayBu
 
 ---
 
-## Task 3: `Base64ArrayBuffer` contrib + `EncodePacket` / `EncodePacketToBinary`
+## Task 3: `Base64ArrayBuffer` contrib + `EncodePacket` / `EncodePacketToBinary` — ✅ DONE
 
 **Files:**
 - Create: `src/.../Contrib/Base64ArrayBuffer.cs`
@@ -720,7 +720,7 @@ git commit -m "feat(parser): EncodePacket + EncodeToBinary + Base64ArrayBuffer c
 
 ---
 
-## Task 4: `DecodePacket`
+## Task 4: `DecodePacket` — ✅ DONE
 
 **Files:**
 - Create: `src/.../DecodePacket.cs`
@@ -876,7 +876,7 @@ git commit -m "feat(parser): DecodePacket with base64/binary mapping"
 
 ---
 
-## Task 5: Payloads (`EncodePayload` / `DecodePayload`) + public façade
+## Task 5: Payloads (`EncodePayload` / `DecodePayload`) + public façade — ✅ DONE
 
 **Files:**
 - Create: `src/.../EngineIoParser.cs`
@@ -1020,7 +1020,7 @@ git commit -m "feat(parser): EncodePayload/DecodePayload + protocol constant"
 
 ---
 
-## Task 6: `PacketEncoderStream` (push/pull adapter)
+## Task 6: `PacketEncoderStream` (push/pull adapter) — ✅ DONE
 
 **Files:**
 - Create: `src/.../PacketEncoderStream.cs`
@@ -1180,7 +1180,7 @@ git commit -m "feat(parser): PacketEncoderStream push/pull adapter"
 
 ---
 
-## Task 7: `PacketDecoderStream` (state machine)
+## Task 7: `PacketDecoderStream` (state machine) — ✅ DONE
 
 **Files:**
 - Create: `src/.../PacketDecoderStream.cs`
@@ -1462,7 +1462,7 @@ git commit -m "feat(parser): PacketDecoderStream state-machine push/pull adapter
 
 ---
 
-## Task 8: Port remaining test cases 1:1 (index.ts / node.ts full coverage)
+## Task 8: Port remaining test cases 1:1 (index.ts / node.ts full coverage) — ✅ DONE
 
 This task fills any gaps not covered by Tasks 2–7's unit tests so every `it()` in upstream `index.ts` and `node.ts` has a 1:1 ported test. The encoder/decoder stream tests already live in Tasks 6–7; here we ensure the *non-stream* payload/single-packet cases from `index.ts` and `node.ts` are all present (most are in Tasks 3–5).
 
@@ -1588,7 +1588,12 @@ git commit -m "test(parser): port remaining browser/node payload + single-packet
 
 ---
 
-## Task 9: Final verification & wiring
+## Task 9: Final verification & wiring — ✅ DONE
+
+45/45 tests pass in Release across net8.0, net9.0, net10.0; library also compiles
+for netstandard2.1. Wire-format golden assertions all hold. Branch
+`feature/engine-io-parser-port` ready for review/merge; next cycle =
+`socket.io-parser`.
 
 - [ ] **Step 1: Clean rebuild + test across all TFMs**
 
