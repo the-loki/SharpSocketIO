@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
+    <RootNamespace>SharpSocketIO.SocketIo.Client</RootNamespace>
+    <AssemblyName>SharpSocketIO.SocketIo.Client</AssemblyName>
+    <Version>4.8.3</Version>
+    <Description>socket.io client — C# port of socket.io-client v4.8.3.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpSocketIO.EngineIo.Client\SharpSocketIO.EngineIo.Client.csproj" />
+    <ProjectReference Include="..\SharpSocketIO.SocketIo.Parser\SharpSocketIO.SocketIo.Parser.csproj" />
+    <ProjectReference Include="..\SharpSocketIO.ComponentEmitter\SharpSocketIO.ComponentEmitter.csproj" />
+  </ItemGroup>
+</Project>
