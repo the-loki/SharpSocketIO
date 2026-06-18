@@ -73,7 +73,7 @@ public class Adapter : Emitter<UnitEvents>
     public bool HasRoom(string room) => Rooms.ContainsKey(room);
     public bool HasSocket(string id) => Sids.ContainsKey(id);
 
-    public Task<IReadOnlySet<string>> SocketsAsync(ISet<string> rooms)
+    public Task<IReadOnlyCollection<string>> SocketsAsync(ISet<string> rooms)
     {
         var result = new HashSet<string>();
         foreach (var room in rooms)
@@ -81,15 +81,15 @@ public class Adapter : Emitter<UnitEvents>
             if (Rooms.TryGetValue(room, out var set))
                 foreach (var sid in set) result.Add(sid);
         }
-        return Task.FromResult<IReadOnlySet<string>>(result);
+        return Task.FromResult<IReadOnlyCollection<string>>(result);
     }
 
-    public Task<IReadOnlySet<string>> RoomsAsync(string socketId)
+    public Task<IReadOnlyCollection<string>> RoomsAsync(string socketId)
     {
         var result = new HashSet<string>();
         if (Sids.TryGetValue(socketId, out var rooms))
             foreach (var r in rooms) result.Add(r);
-        return Task.FromResult<IReadOnlySet<string>>(result);
+        return Task.FromResult<IReadOnlyCollection<string>>(result);
     }
 
     public virtual Task BroadcastAsync(string packet, BroadcastOptions opts)

@@ -12,7 +12,7 @@
 
 ---
 
-## Task A-1: Project skeleton + core types + Adapter
+## Task A-1: Project skeleton + core types + Adapter — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.SocketIo.Adapter/SharpSocketIO.SocketIo.Adapter.csproj`
@@ -381,7 +381,7 @@ git commit -m "feat(adapter): port socket.io-adapter in-memory Adapter — rooms
 
 ---
 
-## Task A-2: SessionAwareAdapter (minimal)
+## Task A-2: SessionAwareAdapter (minimal) — DONE
 
 **Files:**
 - Create: `src/.../SessionAwareAdapter.cs`
@@ -440,7 +440,7 @@ git commit -m "feat(adapter): SessionAwareAdapter — minimal session persist/re
 
 ---
 
-## Task A-3: Final cycle-4 verification
+## Task A-3: Final cycle-4 verification — DONE
 
 - [ ] **Step 1: Release build + test across all TFMs**
 

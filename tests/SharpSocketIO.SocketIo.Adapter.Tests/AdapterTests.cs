@@ -77,7 +77,7 @@ public class AdapterTests
         adapter.AddAll("s3", new HashSet<string> { "room2" });
 
         var inRoom1 = await adapter.SocketsAsync(new HashSet<string> { "room1" });
-        Assert.Equal(new HashSet<string> { "s1", "s2" }, inRoom1);
+        Assert.True(new HashSet<string>(inRoom1).SetEquals(new[] { "s1", "s2" }));
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class AdapterTests
         var adapter = NewAdapter();
         adapter.AddAll("s1", new HashSet<string> { "room1", "room2" });
         var rooms = await adapter.RoomsAsync("s1");
-        Assert.Equal(new HashSet<string> { "room1", "room2" }, rooms);
+        Assert.True(new HashSet<string>(rooms).SetEquals(new[] { "room1", "room2" }));
     }
 
     [Fact]
