@@ -12,7 +12,7 @@
 
 ---
 
-## Task E-1: Project skeleton
+## Task E-1: Project skeleton — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.EngineIo/SharpSocketIO.EngineIo.csproj`
@@ -74,7 +74,7 @@ git commit -m "build: SharpSocketIO.EngineIo project skeleton"
 
 ---
 
-## Task E-2: `Base64Id` + cookie serializer + option types
+## Task E-2: `Base64Id` + cookie serializer + option types — DONE
 
 **Files:**
 - Create: `src/.../Contrib/Base64Id.cs`
@@ -331,7 +331,7 @@ git commit -m "feat(engine): base64id, cookie serializer, option/error/ready-sta
 
 ---
 
-## Task E-3: v3-compat parser (`ParserV3`)
+## Task E-3: v3-compat parser (`ParserV3`) — DONE
 
 Port `lib/parser-v3/index.ts` + `lib/parser-v3/utf8.ts`. The v3 codec is structurally different from v4 (length-prefixed binary framing, different packet codes, supportsBinary negotiation).
 
@@ -752,7 +752,7 @@ git commit -m "feat(engine): ParserV3 — Engine.IO v3 / Socket.IO v2 compat cod
 
 ---
 
-## Task E-4: `Transport` abstract base (pure logic)
+## Task E-4: `Transport` abstract base (pure logic) — DONE
 
 Port `lib/transport.ts`. No I/O — the transport holds state, selects its parser (v3/v4), and exposes the abstract send/close surface.
 
@@ -918,7 +918,7 @@ git commit -m "feat(engine): abstract Transport base (parser selection, state, c
 
 ---
 
-## Task E-5: `Socket` lifecycle logic
+## Task E-5: `Socket` lifecycle logic — DONE
 
 Port `lib/socket.ts` lifecycle against a fake transport. The state machine: opening → open, ping/pong timers, write buffer flush, packet dispatch, close. We test with a fake transport recording sends.
 
@@ -1159,7 +1159,7 @@ git commit -m "feat(engine): Socket lifecycle — open/send/ping-pong/close"
 
 ---
 
-## Task E-6: `Server` handshake/verification logic
+## Task E-6: `Server` handshake/verification logic — DONE
 
 Port the verification/route-decision subset of `lib/server.ts`: error code selection, handshake `open` packet, query parsing. No live I/O — driven by `IEngineRequest`.
 
@@ -1327,7 +1327,7 @@ git commit -m "feat(engine): Server verification + handshake open-packet builder
 
 ---
 
-## Task E-7: Polling transport logic (against abstraction)
+## Task E-7: Polling transport logic (against abstraction) — DONE
 
 Port the GET-flush / POST-ingest logic of `lib/transports/polling.ts` against an abstraction — no live HTTP. The transport emits packets from POSTed payloads and writes queued packets as a `\x1e`-joined payload on the next GET.
 
@@ -1470,7 +1470,7 @@ git commit -m "feat(engine): Polling transport logic — payload ingest + flush 
 
 ---
 
-## Task E-8: Final verification (sub-cycle 3A gate)
+## Task E-8: Final verification (sub-cycle 3A gate) — DONE
 
 - [ ] **Step 1: Release build across all TFMs**
 
