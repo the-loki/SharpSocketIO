@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,9 +28,9 @@ public sealed class TestDriver : IAsyncDisposable
     private readonly HttpClient _client;
     public Server Engine { get; }
 
-    private TestDriver(IHost host, HttpClient client, Server engine)
+    private TestDriver(IHost host, HttpClient client, Server engine, TestServer server)
     {
-        _host = host; _client = client; Engine = engine;
+        _host = host; _client = client; Engine = engine; TestServer = server;
     }
 
     public static async Task<TestDriver> StartAsync(Action<ServerOptions>? configure = null)
@@ -48,8 +50,33 @@ public sealed class TestDriver : IAsyncDisposable
         var server = host.GetTestServer();
         var client = server.CreateClient();
         client.BaseAddress = new Uri("http://localhost/");
-        return new TestDriver(host, client, engine);
+        return new TestDriver(host, client, engine, server);
     }
+
+    /// <summary>Starts a real Kestrel server on an ephemeral port (for WebSocket tests).</summary>
+    public static async Task<TestDriver> StartRealAsync(Action<ServerOptions>? configure = null)
+    {
+        var engine = new Server();
+        configure?.Invoke(engine.Options);
+
+        var builder = Host.CreateDefaultBuilder()
+            .ConfigureWebHost(web =>
+            {
+                web.UseKestrel();
+                web.UseUrls("http://127.0.0.1:0");
+                web.Configure(app => engine.Attach(app));
+            });
+        var host = builder.Build();
+        await host.StartAsync();
+
+        var serverFeature = host.Services.GetRequiredService<Microsoft.AspNetCore.Hosting.Server.IServer>();
+        var address = serverFeature.Features.Get<IServerAddressesFeature>()!.Addresses.First();
+        var baseUri = new Uri(address);
+        var client = new HttpClient { BaseAddress = baseUri };
+        return new TestDriver(host, client, engine, server: null!);
+    }
+
+    public Uri RealBaseAddress => _client.BaseAddress!;
 
     public async Task<(int status, string body, IReadOnlyDictionary<string, string> headers)> GetAsync(
         string pathAndQuery, string? acceptEncoding = null)
@@ -77,4 +104,9 @@ public sealed class TestDriver : IAsyncDisposable
         if (_host is IAsyncDisposable ad) await ad.DisposeAsync();
         else _host.Dispose();
     }
+
+    public Uri BaseUri => _client.BaseAddress!;
+
+    /// <summary>The in-process TestServer — for WebSocket clients (CreateWebSocketClient).</summary>
+    public TestServer TestServer { get; }
 }

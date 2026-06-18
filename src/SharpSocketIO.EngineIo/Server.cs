@@ -36,10 +36,28 @@ public sealed class Server : Emitter<UnitEvents>
         return (null, null);
     }
 
-    public string BuildHandshakeData(string sid)
+    public string BuildHandshakeData(string sid) => BuildHandshakeData(sid, "polling");
+
+    /// <summary>
+    /// Builds the open packet's JSON data. Upgrades advertised depend on the client's
+    /// current transport: a polling client may upgrade to websocket; a websocket client
+    /// has no further upgrades. Mirrors JS server.upgrades(transport).
+    /// </summary>
+    public string BuildHandshakeData(string sid, string clientTransport)
     {
-        var upgrades = Options.AllowUpgrades && Options.Transports.Contains("websocket")
-            ? "[\"websocket\"]" : "[]";
+        string upgrades;
+        if (!Options.AllowUpgrades)
+        {
+            upgrades = "[]";
+        }
+        else if (clientTransport == "polling" && Options.Transports.Contains("websocket"))
+        {
+            upgrades = "[\"websocket\"]";
+        }
+        else
+        {
+            upgrades = "[]";
+        }
         int maxPayload = Options.MaxPayload ?? 1000000;
         return "{\"sid\":\"" + sid + "\",\"upgrades\":" + upgrades +
                ",\"pingInterval\":" + Options.PingInterval +
@@ -135,5 +153,62 @@ public sealed class Server : Emitter<UnitEvents>
         ctx.Response.ContentType = "application/json";
         var body = "{\"code\":" + code + ",\"message\":\"" + message + "\"}";
         await ctx.Response.WriteAsync(body);
+    }
+
+    /// <summary>Handles a WebSocket upgrade request: upgrade an existing polling session, or ws-only handshake.</summary>
+    public async Task HandleWebSocketUpgradeAsync(HttpContext ctx, HttpContextEngineRequest req, string? sid)
+    {
+        if (!ctx.WebSockets.IsWebSocketRequest)
+        {
+            ctx.Response.StatusCode = 400;
+            return;
+        }
+        var ws = await ctx.WebSockets.AcceptWebSocketAsync();
+
+        if (!string.IsNullOrEmpty(sid) && Clients.TryGetValue(sid, out var existing))
+        {
+            // upgrade existing polling session
+            var upgradeTransport = new WebSocketTransport(req, ws, Options.MaxHttpBufferSize);
+            // force a polling cycle (send noop) for a fast probe
+            if (existing.Transport is PollingHttp polling)
+            {
+                polling.EnqueueAndFlush(new[]
+                {
+                    new SharpSocketIO.EngineIo.Parser.Commons.Packet(
+                        SharpSocketIO.EngineIo.Parser.Commons.PacketType.Noop)
+                });
+            }
+            existing.MaybeUpgrade(upgradeTransport, Options.UpgradeTimeout);
+            await upgradeTransport.RunReceiveLoopAsync();
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(sid))
+        {
+            ctx.Response.StatusCode = 400;
+            return;
+        }
+
+        // ws-only fresh handshake
+        var (code, message) = Verify(req);
+        if (code.HasValue)
+        {
+            try { await ws.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, message, System.Threading.CancellationToken.None); } catch { }
+            return;
+        }
+        if (req.Query.TryGetValue("EIO", out var eio) && eio != "4" && !Options.AllowEIO3)
+        {
+            try { await ws.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, "Unsupported protocol version", System.Threading.CancellationToken.None); } catch { }
+            return;
+        }
+        string id = GenerateId();
+        var cookie = BuildCookieValue(id);
+        if (cookie != null) ctx.Response.Headers["Set-Cookie"] = cookie;
+
+        var transport = new WebSocketTransport(req, ws, Options.MaxHttpBufferSize);
+        var socket = new Socket(id, this, transport, protocol: 4);
+        RegisterSocket(id, socket);
+        await socket.OnOpenAsync();
+        await transport.RunReceiveLoopAsync();
     }
 }

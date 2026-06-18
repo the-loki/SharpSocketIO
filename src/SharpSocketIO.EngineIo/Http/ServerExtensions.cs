@@ -18,6 +18,7 @@ public static class ServerExtensions
         string matchPath = opts.Path;
         bool addTrailing = opts.AddTrailingSlash;
 
+        app.UseWebSockets();
         app.Use(async (ctx, next) =>
         {
             var path = ctx.Request.Path.Value ?? "/";
@@ -40,9 +41,18 @@ public static class ServerExtensions
 
             var req = new HttpContextEngineRequest(ctx);
 
-            if (req.Query.TryGetValue("sid", out var sid) && !string.IsNullOrEmpty(sid))
+            // WebSocket upgrade path
+            var transportName = req.Query.TryGetValue("transport", out var tn) ? tn : "";
+            if (transportName == "websocket" && ctx.WebSockets.IsWebSocketRequest)
             {
-                await engine.HandlePollingAsync(ctx, req, sid);
+                string? sid = req.Query.TryGetValue("sid", out var sidv) && !string.IsNullOrEmpty(sidv) ? sidv : null;
+                await engine.HandleWebSocketUpgradeAsync(ctx, req, sid);
+                return;
+            }
+
+            if (req.Query.TryGetValue("sid", out var pollSid) && !string.IsNullOrEmpty(pollSid))
+            {
+                await engine.HandlePollingAsync(ctx, req, pollSid);
                 return;
             }
 

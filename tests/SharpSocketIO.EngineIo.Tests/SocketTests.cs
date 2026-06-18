@@ -34,7 +34,7 @@ public class SocketTests
     public void Open_sends_open_handshake_packet()
     {
         var transport = new FakeTransport();
-        var socket = new Socket("sid-1", server: null!, transport, protocol: 4);
+        var socket = new Socket("sid-1", new Server(), transport, protocol: 4);
         socket.OnOpen();
         Assert.Equal(ReadyState.Open, socket.ReadyState);
         Assert.Equal(PacketType.Open, transport.Sent[0].Type);
@@ -44,7 +44,7 @@ public class SocketTests
     public void Buffers_and_flushes_a_message_packet()
     {
         var transport = new FakeTransport();
-        var socket = new Socket("sid-2", null!, transport, 4);
+        var socket = new Socket("sid-2", new Server(), transport, 4);
         socket.OnOpen();
         transport.Sent.Clear();
 
@@ -57,7 +57,7 @@ public class SocketTests
     public void OnPacket_ping_replies_pong()
     {
         var transport = new FakeTransport();
-        var socket = new Socket("sid-3", null!, transport, 4);
+        var socket = new Socket("sid-3", new Server(), transport, 4);
         socket.OnOpen();
         transport.Sent.Clear();
 
@@ -69,7 +69,7 @@ public class SocketTests
     public void Close_emits_close_after_flushing()
     {
         var transport = new FakeTransport();
-        var socket = new Socket("sid-4", null!, transport, 4);
+        var socket = new Socket("sid-4", new Server(), transport, 4);
         bool closed = false;
         socket.On("close", _ => closed = true);
         socket.OnOpen();
