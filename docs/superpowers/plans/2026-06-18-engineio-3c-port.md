@@ -12,7 +12,7 @@
 
 ---
 
-## Task C-1: `WebSocketTransport`
+## Task C-1: `WebSocketTransport` — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.EngineIo/Transports/WebSocketTransport.cs`
@@ -165,7 +165,7 @@ git commit -m "feat(engine): WebSocketTransport — System.Net.WebSockets + bina
 
 ---
 
-## Task C-2: `Socket.MaybeUpgrade` + `SetTransport`
+## Task C-2: `Socket.MaybeUpgrade` + `SetTransport` — DONE
 
 Extend `Socket` with the upgrade state machine (probe ping/pong, `upgrade` packet, transport swap).
 
@@ -255,7 +255,7 @@ git commit -m "feat(engine): Socket.MaybeUpgrade — probe ping/pong + upgrade p
 
 ---
 
-## Task C-3: `Server.HandleWebSocketUpgradeAsync` + middleware routing
+## Task C-3: `Server.HandleWebSocketUpgradeAsync` + middleware routing — DONE
 
 **Files:**
 - Modify: `src/SharpSocketIO.EngineIo/Server.cs`
@@ -351,7 +351,7 @@ git commit -m "feat(engine): Server.HandleWebSocketUpgradeAsync + WS routing in 
 
 ---
 
-## Task C-4: WsDriver (ClientWebSocket) + ws tests
+## Task C-4: WsDriver (ClientWebSocket) + ws tests — DONE
 
 **Files:**
 - Create: `tests/.../Commons/WsDriver.cs`
@@ -539,7 +539,7 @@ git commit -m "test(engine): ClientWebSocket WsDriver + ported server.js ws subs
 
 ---
 
-## Task C-5: Final 3C verification
+## Task C-5: Final 3C verification — DONE
 
 - [ ] **Step 1: Release build + test across all TFMs**
 
