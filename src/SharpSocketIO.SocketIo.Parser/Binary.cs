@@ -60,7 +60,16 @@ public static class BinaryPacket
         {
             if (dict.Contains("_placeholder") && dict["_placeholder"] is bool b && b)
             {
-                var num = System.Convert.ToInt32(dict["num"]);
+                // JS: typeof data.num === "number" && num >= 0 && num < buffers.length
+                var raw = dict["num"];
+                int num;
+                switch (raw)
+                {
+                    case int i: num = i; break;
+                    case long l: num = (int)l; break;
+                    default:
+                        throw new System.InvalidOperationException("illegal attachments");
+                }
                 if (num < 0 || num >= buffers.Count) throw new System.InvalidOperationException("illegal attachments");
                 return buffers[num];
             }

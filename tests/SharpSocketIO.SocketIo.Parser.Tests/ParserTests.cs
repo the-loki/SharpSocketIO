@@ -148,14 +148,14 @@ public class ParserTests
     public void Decodes_bad_binary_packet_throws_illegal()
     {
         var decoder = new Decoder();
-        Assert.Throws<Exception>(() => decoder.Add("5"));
+        Assert.ThrowsAny<Exception>(() => decoder.Add("5"));
     }
 
     [Fact]
     public void Throws_when_too_many_attachments()
     {
         var decoder = new Decoder(new DecoderOptions { MaxAttachments = 2 });
-        Assert.Throws<Exception>(() => decoder.Add(
+        Assert.ThrowsAny<Exception>(() => decoder.Add(
             "53-[\"hello\",{\"_placeholder\":true,\"num\":0},{\"_placeholder\":true,\"num\":1},{\"_placeholder\":true,\"num\":2}]"));
     }
 
@@ -187,7 +187,7 @@ public class ParserTests
     public void Throws_on_invalid_payloads()
     {
         void Invalid(string str) =>
-            Assert.Throws<Exception>(() => new Decoder().Add(str));
+            Assert.ThrowsAny<Exception>(() => new Decoder().Add(str));
 
         Invalid("442[\"some\",\"data\"");
         Invalid("0/admin,\"invalid\"");
@@ -202,14 +202,14 @@ public class ParserTests
         Invalid("2[\"disconnect\",\"123\"]");
 
         void IllegalAttachments(string str) =>
-            Assert.Throws<Exception>(() => new Decoder().Add(str));
+            Assert.ThrowsAny<Exception>(() => new Decoder().Add(str));
         IllegalAttachments("5");
         IllegalAttachments("51");
         IllegalAttachments("5a-");
         IllegalAttachments("51.23-");
 
-        Assert.Throws<Exception>(() => new Decoder().Add("999"));
-        Assert.Throws<Exception>(() => new Decoder().Add(999!));
+        Assert.ThrowsAny<Exception>(() => new Decoder().Add("999"));
+        Assert.ThrowsAny<Exception>(() => new Decoder().Add(999!));
     }
 
     [Fact]
