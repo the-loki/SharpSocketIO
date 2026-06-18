@@ -11,5 +11,6 @@
     <ProjectReference Include="..\SharpSocketIO.SocketIo.Adapter\SharpSocketIO.SocketIo.Adapter.csproj" />
     <ProjectReference Include="..\SharpSocketIO.ComponentEmitter\SharpSocketIO.ComponentEmitter.csproj" />
     <ProjectReference Include="..\SharpSocketIO.EngineIo.Parser\SharpSocketIO.EngineIo.Parser.csproj" />
+    <ProjectReference Include="..\SharpSocketIO.EngineIo\SharpSocketIO.EngineIo.csproj" />
   </ItemGroup>
 </Project>

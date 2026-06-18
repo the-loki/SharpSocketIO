@@ -12,7 +12,7 @@
 
 ---
 
-## Task 5B-1: Add engine.io dependency + `EngineIoSocketConnection` adapter
+## Task 5B-1: Add engine.io dependency + `EngineIoSocketConnection` adapter — DONE
 
 **Files:**
 - Modify: `src/SharpSocketIO.SocketIo/SharpSocketIO.SocketIo.csproj` (add EngineIo ref)
@@ -102,7 +102,7 @@ git commit -m "feat(socketio): EngineIoSocketConnection adapter — EngineIo.Soc
 
 ---
 
-## Task 5B-2: `Server.Attach(engine)` + handshake wiring
+## Task 5B-2: `Server.Attach(engine)` + handshake wiring — DONE
 
 **Files:**
 - Modify: `src/SharpSocketIO.SocketIo/Server.cs`
@@ -134,7 +134,7 @@ git commit -m "feat(socketio): Server.Attach — subscribe to engine.io connecti
 
 ---
 
-## Task 5B-3: End-to-end integration tests
+## Task 5B-3: End-to-end integration tests — DONE
 
 **Files:**
 - Modify: `tests/SharpSocketIO.SocketIo.Tests/SharpSocketIO.SocketIo.Tests.csproj` (add EngineIo + EngineIo.Client refs)
@@ -280,7 +280,7 @@ git commit -m "test(socketio): 5B — end-to-end integration (engine.io-client t
 
 ---
 
-## Task 5B-4: Final 5B verification
+## Task 5B-4: Final 5B verification — DONE
 
 - [ ] **Step 1: Release build + test across all TFMs**
 

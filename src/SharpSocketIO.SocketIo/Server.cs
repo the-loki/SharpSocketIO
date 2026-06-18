@@ -38,4 +38,16 @@ public sealed class Server : Emitter<UnitEvents>
         conn.Events.On("close", _ => _clients.TryRemove(conn.Id, out Client? _));
         return client;
     }
+
+    /// <summary>Attaches the socket.io server to an engine.io server.</summary>
+    public Server Attach(SharpSocketIO.EngineIo.Server engine)
+    {
+        engine.On("connection", args =>
+        {
+            var engineSocket = (SharpSocketIO.EngineIo.Socket)args[0];
+            var conn = new EngineIoSocketConnection(engineSocket);
+            CreateClient(conn);
+        });
+        return this;
+    }
 }
