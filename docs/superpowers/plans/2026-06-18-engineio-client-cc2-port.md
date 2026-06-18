@@ -12,7 +12,7 @@
 
 ---
 
-## Task CC-2.1: `WebSocketTransport` (ClientWebSocket)
+## Task CC-2.1: `WebSocketTransport` (ClientWebSocket) — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.EngineIo.Client/Transports/WebSocketTransport.cs`
@@ -176,7 +176,7 @@ git commit -m "feat(client): WebSocketTransport (ClientWebSocket + binary/text f
 
 ---
 
-## Task CC-2.2: `Socket.CreateTransport` + `Probe` (client-side upgrade)
+## Task CC-2.2: `Socket.CreateTransport` + `Probe` (client-side upgrade) — DONE
 
 **Files:**
 - Modify: `src/SharpSocketIO.EngineIo.Client/EngineIoClientSocket.cs`
@@ -334,7 +334,7 @@ git commit -m "feat(client): Socket.Probe — client-side polling→websocket up
 
 ---
 
-## Task CC-2.3: ws-only connect + upgrade integration tests
+## Task CC-2.3: ws-only connect + upgrade integration tests — DONE
 
 **Files:**
 - Create: `tests/.../WebSocketIntegrationTests.cs`
@@ -475,7 +475,7 @@ git commit -m "test(client): ws-only + polling→ws upgrade + post-upgrade messa
 
 ---
 
-## Task CC-2.4: Final CC-2 verification
+## Task CC-2.4: Final CC-2 verification — DONE
 
 - [ ] **Step 1: Release build + test across all TFMs**
 
