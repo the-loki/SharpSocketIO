@@ -129,4 +129,23 @@ public class AdapterTests
         await adapter.BroadcastAsync("p", new BroadcastOptions());
         Assert.Equal(2, nsp.Sent.Count);
     }
+
+    [Fact]
+    public void SessionAwareAdapter_persists_and_restores_session()
+    {
+        var adapter = new SessionAwareAdapter(new FakeNamespace());
+        var session = new Session("old-sid", "pid-1", new[] { "room1" }, null, new List<object[]>());
+        adapter.PersistSession(session);
+        var restored = adapter.RestoreSession("pid-1", "new-sid");
+        Assert.NotNull(restored);
+        Assert.Equal("new-sid", restored!.Sid);
+        Assert.Equal("pid-1", restored.Pid);
+    }
+
+    [Fact]
+    public void SessionAwareAdapter_returns_null_for_unknown_pid()
+    {
+        var adapter = new SessionAwareAdapter(new FakeNamespace());
+        Assert.Null(adapter.RestoreSession("nope", "new-sid"));
+    }
 }
