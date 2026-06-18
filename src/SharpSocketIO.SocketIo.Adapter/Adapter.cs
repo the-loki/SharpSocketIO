@@ -115,7 +115,14 @@ public class Adapter : Emitter<UnitEvents>
                 if (Rooms.TryGetValue(room, out var set))
                     foreach (var sid in set) matched.Add(sid);
         }
-        foreach (var ex in except) matched.Remove(ex);
+        // Expand except rooms: remove every socket that is a member of an except room.
+        var exceptSocketIds = new HashSet<string>();
+        foreach (var exRoom in except)
+        {
+            if (Rooms.TryGetValue(exRoom, out var exSet))
+                foreach (var sid in exSet) exceptSocketIds.Add(sid);
+        }
+        foreach (var sid in exceptSocketIds) matched.Remove(sid);
         return matched;
     }
 

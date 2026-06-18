@@ -68,6 +68,22 @@ public sealed class Namespace : Emitter<UnitEvents>, IAdapterNamespace
         await Adapter.BroadcastAsync(packet, new BroadcastOptions { Rooms = rooms, Except = except });
     }
 
+    /// <summary>Targets a room for broadcast (returns a BroadcastOperator for chaining).</summary>
+    public BroadcastOperator To(string room) => new BroadcastOperator(this, Adapter).To(room);
+
+    /// <summary>Targets rooms for broadcast.</summary>
+    public BroadcastOperator To(IEnumerable<string> rooms) => new BroadcastOperator(this, Adapter).To(rooms);
+
+    /// <summary>Alias of To.</summary>
+    public BroadcastOperator In(string room) => To(room);
+
+    /// <summary>Excludes a room from broadcast.</summary>
+    public BroadcastOperator Except(string room) => new BroadcastOperator(this, Adapter).Except(room);
+
+    /// <summary>Broadcasts an event to all sockets in this namespace.</summary>
+    public Task EmitAsync(string eventName, params object[] args) =>
+        new BroadcastOperator(this, Adapter).EmitAsync(eventName, args);
+
     /// <summary>IAdapterNamespace: send a packet to a specific socket by id.</summary>
     void IAdapterNamespace.Send(string socketId, string packet)
     {

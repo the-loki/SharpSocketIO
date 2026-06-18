@@ -95,7 +95,7 @@ public class AdapterTests
         var nsp = new FakeNamespace();
         var adapter = new Adapter(nsp);
         adapter.AddAll("s1", new HashSet<string> { "room1" });
-        adapter.AddAll("s2", new HashSet<string> { "room1" });
+        adapter.AddAll("s2", new HashSet<string> { "room1", "excluded" });
         adapter.AddAll("s3", new HashSet<string> { "room2" });
 
         await adapter.BroadcastAsync(
@@ -103,7 +103,7 @@ public class AdapterTests
             new BroadcastOptions
             {
                 Rooms = new HashSet<string> { "room1" },
-                Except = new HashSet<string> { "s2" },
+                Except = new HashSet<string> { "excluded" },
             });
 
         Assert.Single(nsp.Sent);
