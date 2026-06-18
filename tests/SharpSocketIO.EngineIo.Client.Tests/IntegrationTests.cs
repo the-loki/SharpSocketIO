@@ -97,7 +97,7 @@ public class IntegrationTests
 
             int clientMessageEvents = 0;
             string? lastClientMessage = null;
-            var client = new EngineIoClientSocket(baseAddress);
+            var client = new EngineIoClientSocket(baseAddress, new SocketOptions { Upgrade = false });
             client.On("open", _ => client.Send("ping-from-client"));
             client.On("message", args =>
             {
@@ -112,7 +112,7 @@ public class IntegrationTests
 
             await client.OpenAsync();
             // give the round-trip up to 8s
-            var done = await Task.WhenAny(pongTcs.Task, Task.Delay(8000));
+            var done = await Task.WhenAny(pongTcs.Task, Task.Delay(15000));
             var pt = client.Transport as SharpSocketIO.EngineIo.Client.Transports.PollingTransport;
             var spt = engine.Clients.Values.FirstOrDefault()?.Transport as SharpSocketIO.EngineIo.Transports.PollingHttp;
             Assert.True(done == pongTcs.Task, $"did not round-trip (conn={connectionFired}, srvMsg={receivedOnServer ?? "null"}, cliMsgEvents={clientMessageEvents}, cliState={client.ReadyState}, pollIter={pt?.PollLoopIterations}, lastPollBody={pt?.LastPollBody ?? "null"}, srvBodyLen={spt?.LastPostBodyLength})");

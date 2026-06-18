@@ -54,7 +54,12 @@ public sealed class EngineIoClientSocket : Emitter<UnitEvents>
     public Task OpenAsync()
     {
         lock (_gate) ReadyState = SocketReadyState.Opening;
-        Transport = new PollingTransport(Opts);
+        // Pick the initial transport: the first transport in Opts.Transports that the
+        // server will accept (mirrors socket.createTransport(name) with the first name).
+        var initialName = Opts.Transports.Count > 0 ? Opts.Transports[0] : "polling";
+        Transport = CreateTransport(initialName);
+        // The initial transport must NOT carry a sid (handshake); CreateTransport copies
+        // Opts.Query which may be empty — that's fine.
         Transport.On("open", _ => { /* handshake driven by the open *packet* */ });
         Transport.On("packet", args => OnPacket((Packet)args[0]));
         Transport.On("error", args => Emit("error", args));
@@ -75,6 +80,18 @@ public sealed class EngineIoClientSocket : Emitter<UnitEvents>
                 lock (_gate) ReadyState = SocketReadyState.Open;
                 SchedulePingTimeout();
                 Emit("open");
+                // Trigger upgrade probes (mirrors socket.maybeUpgrade): for each advertised
+                // upgrade not equal to the current transport, probe it.
+                if (Opts.Upgrade && _upgrades != null)
+                {
+                    foreach (var u in _upgrades)
+                    {
+                        if (Opts.Transports.Contains(u) && u != Transport?.Name)
+                        {
+                            Probe(u);
+                        }
+                    }
+                }
                 break;
             case EioPacketType.Ping:
                 Transport!.Send(new[] { new Packet(EioPacketType.Pong, packet.Data ?? default) });
@@ -152,6 +169,119 @@ public sealed class EngineIoClientSocket : Emitter<UnitEvents>
         Transport?.Send(new[] { new Packet(EioPacketType.Close) });
         Transport?.Close();
         OnCloseInternal("forced close");
+    }
+
+    public bool Upgraded { get; private set; }
+
+    /// <summary>Creates a transport instance by name, seeded with the current sid query.</summary>
+    public Transport CreateTransport(string name)
+    {
+        var query = new Dictionary<string, string>(Opts.Query);
+        if (Id != null) query["sid"] = Id;
+        var probeOpts = new SocketOptions
+        {
+            Host = Opts.Host,
+            Hostname = Opts.Hostname,
+            Secure = Opts.Secure,
+            Port = Opts.Port,
+            Path = Opts.Path,
+            Query = query,
+            Upgrade = false,
+            TimestampRequests = Opts.TimestampRequests,
+            TimestampParam = Opts.TimestampParam,
+            ForceBase64 = Opts.ForceBase64,
+            Transports = Opts.Transports,
+        };
+        return name switch
+        {
+            "websocket" => new WebSocketTransport(probeOpts),
+            "polling" => new PollingTransport(probeOpts),
+            _ => throw new ArgumentException($"unknown transport: {name}"),
+        };
+    }
+
+    /// <summary>
+    /// Port of socket._probe. Client-side upgrade handshake: open the new transport,
+    /// send ping/"probe", await a single pong/"probe", pause polling, swap transport,
+    /// send the "upgrade" packet, emit "upgrade", flush.
+    /// </summary>
+    public void Probe(string name)
+    {
+        var transport = CreateTransport(name);
+        bool failed = false;
+        Action<object[]>? onPacket = null;
+        Action<object[]>? onError = null;
+        Action<object[]>? onClose = null;
+        Action<object[]>? onTransportOpen = null;
+
+        void Cleanup()
+        {
+            if (onTransportOpen != null) transport.Off("open", onTransportOpen);
+            if (onPacket != null) transport.Off("packet", onPacket);
+            if (onError != null) transport.Off("error", onError);
+            if (onClose != null) transport.Off("close", onClose);
+        }
+
+        void Freeze()
+        {
+            if (failed) return;
+            failed = true;
+            Cleanup();
+            transport.Close();
+        }
+
+        onTransportOpen = _ =>
+        {
+            if (failed) return;
+            transport.Send(new[] { new Packet(EioPacketType.Ping, new RawData("probe")) });
+            onPacket = args =>
+            {
+                if (failed) return;
+                var msg = (Packet)args[0];
+                if (msg.Type == EioPacketType.Pong && msg.Data?.AsString() == "probe")
+                {
+                    Transport?.Pause(() =>
+                    {
+                        if (failed || ReadyState == SocketReadyState.Closed) return;
+                        Cleanup();
+                        SetTransport(transport);
+                        transport.Send(new[] { new Packet(EioPacketType.Upgrade) });
+                        Emit("upgrade", transport);
+                    });
+                }
+                else
+                {
+                    Emit("upgradeError", new InvalidOperationException("probe error"));
+                }
+            };
+            transport.Once("packet", onPacket);
+        };
+
+        onError = args =>
+        {
+            Freeze();
+            Emit("upgradeError", args.Length > 0 ? args[0] : new InvalidOperationException("probe error"));
+        };
+        onClose = _ =>
+        {
+            if (!failed) onError!(new object[] { new InvalidOperationException("transport closed") });
+        };
+
+        transport.On("open", onTransportOpen);
+        transport.On("error", onError);
+        transport.On("close", onClose);
+        transport.Open();
+    }
+
+    /// <summary>Swaps the active transport, re-wiring packet/error/close handlers.</summary>
+    private void SetTransport(Transport transport)
+    {
+        Transport?.Close();
+        Transport = transport;
+        transport.On("packet", args => OnPacket((Packet)args[0]));
+        transport.On("error", args => Emit("error", args));
+        transport.On("close", args => OnCloseInternal("transport closed"));
+        Upgraded = transport.Name == "websocket";
     }
 
     private void OnCloseInternal(string reason)

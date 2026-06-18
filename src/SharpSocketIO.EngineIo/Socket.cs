@@ -178,7 +178,7 @@ public sealed class Socket : Emitter<UnitEvents>
                 lock (_gate)
                 {
                     Transport.Discard();
-                    Transport = newTransport;
+                    SetTransport(newTransport);
                     Upgraded = true;
                 }
                 Emit("upgrade", newTransport);
@@ -198,6 +198,15 @@ public sealed class Socket : Emitter<UnitEvents>
             Cleanup();
             if (newTransport.ReadyState == ReadyState.Open) newTransport.Close();
         }, null, upgradeTimeoutMs, Timeout.Infinite);
+    }
+
+    /// <summary>Swaps the active transport and re-wires its packet/error/close handlers.</summary>
+    private void SetTransport(Transport transport)
+    {
+        Transport = transport;
+        transport.On("packet", args => OnPacket((Packet)args[0]));
+        transport.On("error", args => Emit("error", args));
+        transport.On("close", _ => OnClose());
     }
 
     public void OnClose()

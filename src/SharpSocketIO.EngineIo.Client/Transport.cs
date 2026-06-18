@@ -14,12 +14,14 @@ public abstract class Transport : Emitter<UnitEvents>
     public SocketOptions Opts { get; }
     public Dictionary<string, string> Query { get; }
     public bool Writable { get; protected set; }
+    public bool SupportsBinary { get; }
     public TransportState ReadyState { get; protected set; } = TransportState.Closed;
 
     protected Transport(SocketOptions opts)
     {
         Opts = opts;
         Query = new Dictionary<string, string>(opts.Query);
+        SupportsBinary = !opts.ForceBase64;
     }
 
     public Transport Open()
