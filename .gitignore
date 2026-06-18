@@ -55,3 +55,6 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Reference clone of upstream socket.io (used only as port source, not part of repo)
+_upstream/
