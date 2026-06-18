@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
+    <RootNamespace>SharpSocketIO.ClusterAdapter</RootNamespace>
+    <AssemblyName>SharpSocketIO.ClusterAdapter</AssemblyName>
+    <Version>0.3.0</Version>
+    <Description>Cluster adapter for socket.io — C# port of @socket.io/cluster-adapter.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpSocketIO.SocketIo.Adapter\SharpSocketIO.SocketIo.Adapter.csproj" />
+    <ProjectReference Include="..\SharpSocketIO.SocketIo.Parser\SharpSocketIO.SocketIo.Parser.csproj" />
+    <ProjectReference Include="..\SharpSocketIO.ComponentEmitter\SharpSocketIO.ComponentEmitter.csproj" />
+  </ItemGroup>
+</Project>
