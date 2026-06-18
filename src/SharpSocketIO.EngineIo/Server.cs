@@ -96,7 +96,10 @@ public sealed class Server : Emitter<UnitEvents>
         var cookie = BuildCookieValue(id);
         if (cookie != null) ctx.Response.Headers["Set-Cookie"] = cookie;
 
-        var transport = new PollingHttp(req, Options.MaxHttpBufferSize, Options.HttpCompression);
+        var hasJsonp = req.Query.TryGetValue("j", out var _) && !string.IsNullOrEmpty(req.Query["j"]);
+        var transport = hasJsonp
+            ? new JsonpPolling(req, Options.MaxHttpBufferSize, Options.HttpCompression)
+            : new PollingHttp(req, Options.MaxHttpBufferSize, Options.HttpCompression);
         var socket = new Socket(id, this, transport, protocol: 4);
         RegisterSocket(id, socket);
 

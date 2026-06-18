@@ -166,4 +166,44 @@ public class HttpServerTests
         Assert.Equal(400, status);
         Assert.Contains("\"code\":0", body);
     }
+
+    // server.js JSONP: when j= query present, response is wrapped as ___eio[j](...);
+    [Fact]
+    public async Task Jsonp_wraps_response_when_j_query_present()
+    {
+        await using var driver = await TestDriver.StartAsync();
+        var (status, body, headers) = await driver.GetAsync("/engine.io/?EIO=4&transport=polling&j=0");
+        Assert.Equal(200, status);
+        Assert.StartsWith("___eio[0](", body);
+        Assert.EndsWith(");", body);
+        Assert.True(headers.TryGetValue("Content-Type", out var ct));
+        Assert.Contains("javascript", ct);
+    }
+
+    // gzip compression negotiated when payload large enough + Accept-Encoding: gzip
+    [Fact]
+    public async Task Compresses_with_gzip_when_accepted_and_large()
+    {
+        await using var driver = await TestDriver.StartAsync(o =>
+        {
+            o.CookieConfig = null;
+            o.HttpCompression = true;
+        });
+        // Send a large POST message then poll — the echoed large payload should compress.
+        // First handshake
+        var (_, hsBody, _) = await driver.GetAsync("/engine.io/?EIO=4&transport=polling");
+        var sid = SidFromBody(hsBody);
+        // Drive a server→client large message via the Socket API
+        var socket = driver.Engine.Clients[sid];
+        var big = new string('x', 2048);
+        socket.Send(new[] { new SharpSocketIO.EngineIo.Parser.Commons.Packet(
+            SharpSocketIO.EngineIo.Parser.Commons.PacketType.Message,
+            new SharpSocketIO.EngineIo.Parser.Commons.RawData(big)) });
+        // Poll with gzip accepted
+        var (status, _, headers) = await driver.GetAsync(
+            $"/engine.io/?EIO=4&transport=polling&sid={sid}", acceptEncoding: "gzip");
+        Assert.Equal(200, status);
+        Assert.True(headers.TryGetValue("Content-Encoding", out var enc));
+        Assert.Equal("gzip", enc);
+    }
 }
