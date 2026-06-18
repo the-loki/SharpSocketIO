@@ -48,32 +48,42 @@ public class PollingHttp : Polling
         _boundReq = req;
     }
 
+    /// <summary>
+    /// Override of Send: enqueue then, if a poll GET is currently waiting, wake it up so the
+    /// queued packets are delivered on the in-flight long-poll response immediately.
+    /// </summary>
+    public override void Send(IReadOnlyList<Packet> packets)
+    {
+        foreach (var p in packets) Enqueue(p);
+        FlushToWaiter();
+    }
+
     /// <summary>Handle a polling GET. If outbound buffer non-empty, flush; else hold until FlushToWaiter.</summary>
     public async Task HandleGetAsync()
     {
+        // Capture THIS request's context: the long-poll may be completed later by a POST
+        // arriving on a different HttpContext, and we must write the payload to THIS response.
+        var getCtx = _ctx;
         var immediate = FlushToString();
         if (!string.IsNullOrEmpty(immediate))
         {
-            await WritePayloadAsync(immediate);
+            await WritePayloadAsync(getCtx, immediate);
             return;
         }
         _pollWait = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
         var payload = await _pollWait.Task;
-        await WritePayloadAsync(payload);
+        await WritePayloadAsync(getCtx, payload);
     }
 
     /// <summary>Flush queued packets; if a poll is waiting, complete it. Returns true if delivered.</summary>
     public bool FlushToWaiter()
     {
+        if (_pollWait == null) return false; // don't drain the buffer if nobody is waiting
         var flushed = FlushToString();
         if (string.IsNullOrEmpty(flushed)) return false;
-        if (_pollWait != null)
-        {
-            _pollWait.TrySetResult(flushed);
-            _pollWait = null;
-            return true;
-        }
-        return false;
+        _pollWait.TrySetResult(flushed);
+        _pollWait = null;
+        return true;
     }
 
     /// <summary>POST data ingest: read body, enforce maxHttpBufferSize, decode, emit packets, reply ok.</summary>
@@ -82,6 +92,8 @@ public class PollingHttp : Polling
         if (_boundReq == null) throw new InvalidOperationException("no bound request");
         await _boundReq.ReadBodyAsync();
         var bodyBytes = _boundReq.Body ?? Array.Empty<byte>();
+        LastPostBodyLength = bodyBytes.Length;
+        LastRequestContentLength = (long?)_ctx.Request.ContentLength ?? -1;
         if (bodyBytes.Length > _maxHttpBufferSize)
         {
             _ctx.Response.StatusCode = 413;
@@ -94,27 +106,30 @@ public class PollingHttp : Polling
         await _ctx.Response.WriteAsync("ok");
     }
 
+    public int LastPostBodyLength { get; private set; } = -1;
+    public long LastRequestContentLength { get; private set; } = -1;
+
     public void EnqueueAndFlush(IReadOnlyList<Packet> packets)
     {
         foreach (var p in packets) Enqueue(p);
         FlushToWaiter();
     }
 
-    protected virtual async Task WritePayloadAsync(string payload)
+    protected virtual async Task WritePayloadAsync(HttpContext ctx, string payload)
     {
         var bytes = Encoding.UTF8.GetBytes(payload);
         string? encoding = null;
         if (_httpCompression && bytes.Length >= _compressionThreshold)
         {
-            encoding = NegotiateEncoding(_ctx.Request.Headers["Accept-Encoding"].ToString());
+            encoding = NegotiateEncoding(ctx.Request.Headers["Accept-Encoding"].ToString());
             if (encoding != null) bytes = Compress(bytes, encoding);
         }
 
-        _ctx.Response.StatusCode = 200;
-        _ctx.Response.ContentType = ResponseContentType;
-        if (encoding != null) _ctx.Response.Headers["Content-Encoding"] = encoding;
-        _ctx.Response.ContentLength = bytes.Length;
-        await _ctx.Response.Body.WriteAsync(bytes);
+        ctx.Response.StatusCode = 200;
+        ctx.Response.ContentType = ResponseContentType;
+        if (encoding != null) ctx.Response.Headers["Content-Encoding"] = encoding;
+        ctx.Response.ContentLength = bytes.Length;
+        await ctx.Response.Body.WriteAsync(bytes);
         _responseWritten = true;
     }
 

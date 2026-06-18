@@ -11,5 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SharpSocketIO.EngineIo.Client\SharpSocketIO.EngineIo.Client.csproj" />
+    <ProjectReference Include="..\..\src\SharpSocketIO.EngineIo\SharpSocketIO.EngineIo.csproj" />
   </ItemGroup>
 </Project>

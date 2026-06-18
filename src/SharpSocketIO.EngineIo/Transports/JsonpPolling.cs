@@ -24,11 +24,11 @@ public sealed class JsonpPolling : PollingHttp
 
     protected override string ResponseContentType => "text/javascript; charset=UTF-8";
 
-    protected override async Task WritePayloadAsync(string payload)
+    protected override async Task WritePayloadAsync(Microsoft.AspNetCore.Http.HttpContext ctx, string payload)
     {
         // JSON-stringify the payload (escape U+2028/U+2029 which are invalid in JS string literals)
         var js = JsonSerializer.Serialize(payload).Replace("\u2028", "\\u2028").Replace("\u2029", "\\u2029");
         var wrapped = _head + js + Foot;
-        await base.WritePayloadAsync(wrapped);
+        await base.WritePayloadAsync(ctx, wrapped);
     }
 }

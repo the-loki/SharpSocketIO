@@ -51,10 +51,12 @@ public sealed class HttpContextEngineRequest : IEngineRequest
     public async Task ReadBodyAsync()
     {
         if (_bodyRead) return;
+        _ctx.Request.EnableBuffering();
         using var ms = new MemoryStream();
         await _ctx.Request.Body.CopyToAsync(ms);
         _body = ms.ToArray();
         _bodyRead = true;
+        try { _ctx.Request.Body.Position = 0; } catch { }
     }
 
     public HttpContext HttpContext => _ctx;
