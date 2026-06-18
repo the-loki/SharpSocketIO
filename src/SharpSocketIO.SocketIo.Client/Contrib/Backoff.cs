@@ -1,6 +1,6 @@
 using System;
 
-namespace SharpSocketIO.SocketIo.Client.Contrib;
+namespace SharpSocketIO.SocketIoClient.Contrib;
 
 /// <summary>
 /// Port of lib/contrib/backo2.ts. Exponential backoff with optional jitter for reconnect.

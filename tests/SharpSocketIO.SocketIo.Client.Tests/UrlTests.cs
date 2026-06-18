@@ -1,6 +1,7 @@
+using global::SharpSocketIO.SocketIoClient;
 using Xunit;
 
-namespace SharpSocketIO.SocketIo.Client.Tests;
+namespace SharpSocketIO.Tests.SocketIoClient;
 
 public class UrlTests
 {

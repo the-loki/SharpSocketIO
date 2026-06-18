@@ -1,7 +1,7 @@
-using SharpSocketIO.SocketIo.Client.Contrib;
+using global::SharpSocketIO.SocketIoClient.Contrib;
 using Xunit;
 
-namespace SharpSocketIO.SocketIo.Client.Tests;
+namespace SharpSocketIO.Tests.SocketIoClient;
 
 public class BackoffTests
 {

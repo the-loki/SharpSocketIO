@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SharpSocketIO.SocketIo.Client;
+namespace SharpSocketIO.SocketIoClient;
 
 /// <summary>Port of lib/url.ts — parse a socket.io URL into host/path/query/source/secure.</summary>
 public sealed class Url

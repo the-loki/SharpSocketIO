@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SharpSocketIO.SocketIo.Client;
+namespace SharpSocketIO.SocketIoClient;
 
 /// <summary>Port of ManagerOptions.</summary>
 public sealed class ManagerOptions
