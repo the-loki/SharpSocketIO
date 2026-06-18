@@ -12,7 +12,7 @@
 
 ---
 
-## Task CC-1.1: Project skeleton + parseuri + parseqs + util
+## Task CC-1.1: Project skeleton + parseuri + parseqs + util — DONE
 
 **Files:**
 - Create: `src/SharpSocketIO.EngineIo.Client/SharpSocketIO.EngineIo.Client.csproj`
@@ -339,7 +339,7 @@ git commit -m "feat(client): project skeleton + EngineIoUri (parseuri) + Parseqs
 
 ---
 
-## Task CC-1.2: `SocketOptions` + abstract `Transport`
+## Task CC-1.2: `SocketOptions` + abstract `Transport` — DONE
 
 **Files:**
 - Create: `src/.../SocketOptions.cs`
@@ -487,7 +487,7 @@ git commit -m "feat(client): SocketOptions + abstract Transport"
 
 ---
 
-## Task CC-1.3: `PollingTransport` (HttpClient)
+## Task CC-1.3: `PollingTransport` (HttpClient) — DONE
 
 **Files:**
 - Create: `src/.../Transports/PollingTransport.cs`
@@ -640,7 +640,7 @@ git commit -m "feat(client): PollingTransport (HttpClient long-poll + POST)"
 
 ---
 
-## Task CC-1.4: `EngineIoClientSocket` lifecycle
+## Task CC-1.4: `EngineIoClientSocket` lifecycle — DONE
 
 **Files:**
 - Create: `src/.../EngineIoClientSocket.cs`
@@ -829,7 +829,7 @@ git commit -m "feat(client): EngineIoClientSocket lifecycle (open/handshake/send
 
 ---
 
-## Task CC-1.5: Real-server integration tests (client ↔ SharpSocketIO.EngineIo)
+## Task CC-1.5: Real-server integration tests (client ↔ SharpSocketIO.EngineIo) — DONE
 
 **Files:**
 - Create: `tests/.../IntegrationTests.cs`
@@ -975,7 +975,7 @@ git commit -m "test(client): integration tests — client ↔ SharpSocketIO.Engi
 
 ---
 
-## Task CC-1.6: Final CC-1 verification
+## Task CC-1.6: Final CC-1 verification — DONE
 
 - [ ] **Step 1: Release build + test across all TFMs**
 
